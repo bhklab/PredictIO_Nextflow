@@ -59,10 +59,10 @@ The PredictioR Nextflow pipeline is designed to analyze immunotherapy responses 
 
 ### Meta Analysis
 - **Input Data Directory:** 
-  - This step aggregates the results from both gene-level and signature-level analyses.
+  - This step aggregates the directories from both gene-level and signature-level analyses.
   - **Input Directories:** 
-    - Gene level output: `./output/gene_level_output`
-    - Signature level output: `./output/signature_level_output`
+    - Gene level : './ICB_data'
+    - Signature level : `./output/signature_level_output`
 - **Output Data Directory:**
   ```bash
   params.out_dir = './output/meta_analysis_output'
