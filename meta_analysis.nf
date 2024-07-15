@@ -11,8 +11,9 @@ params.gene_name = "CXCL9"
 
 // Use all .rda files from './ICB_data'.
 // Set the cancer type and treatment for each dataset respectively.
-params.cancer_types = '["Melanoma", "Pancreas", "Melanoma", "Bladder", "Melanoma", "Melanoma", "Kidney", "Melanoma"]'
-params.treatment_types = '["PD-1/PD-L1", "PD-1/PD-L1", "PD-1/PD-L1", "PD-1/PD-L1", "CTLA4", "IO+combo", "PD-1/PD-L1", "CTLA4"]'
+params.cancer_types = '["Melanoma", "Melanoma", "Kidney", "Melanoma", "Pancreas", "Melanoma", "Melanoma", "Bladder"]'
+params.treatment_types = '["PD-1/PD-L1", "PD-1/PD-L1", "PD-1/PD-L1", "CTLA4", "PD-1/PD-L1", "PD-1/PD-L1", "CTLA4", "PD-1/PD-L1"]'
+
 
 log.info """
 P R E D I C T I O - N F   P I P E L I N E (for Gene Level + Signature Level)
