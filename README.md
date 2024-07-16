@@ -3,6 +3,11 @@
 ## Overview
 The PredictioR Nextflow pipeline is designed to analyze immunotherapy responses and identify biomarkers across various cancers. It utilizes Nextflow for workflow management and Docker for reproducibility, focusing on handling SummarizedExperiment objects for in-depth biomarker analysis.
 
+The `main.nf` script integrates three key analysis steps:
+1. **Gene Level Analysis**
+2. **Signature Level Analysis**
+3. **Meta Analysis**
+
 ## Software Requirements and Installation Instructions
 
 ### Nextflow
@@ -34,10 +39,11 @@ The PredictioR Nextflow pipeline is designed to analyze immunotherapy responses 
   params.gene_data_dir = './ICB_data'
   ```
 - **Example Data Files:** Includes files such as `ICB_small_Hugo.rda`, `ICB_small_Mariathasan.rda`, which are [SummarizedExperiment objects](https://bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/SummarizedExperiment.html). These files are located within the `ICB_data` directory at the [bhklab PredictioR data repository](https://github.com/bhklab/PredictioR/tree/main/data).
-- **Output Data Directory:**
+  - **Output Data Directory:**
   ```bash
-  params.out_dir = './output/gene_level_output'
+  params.out_dir = './output/main_output'
   ```
+- **Output Details:** The results of the Gene Level Analysis are stored in the `main_output` directory, stratified by their study ID for clarity and ease of reference.
 
 ### Signature Level Analysis
 - **Input Data Directory:**
@@ -54,18 +60,19 @@ The PredictioR Nextflow pipeline is designed to analyze immunotherapy responses 
   
 - **Output Data Directory:**
   ```bash
-  params.out_dir = './output/signature_level_output'
+  params.out_dir = './output/main_output'
   ```
+- **Output Details:** The results of the Signature Level Analysis are stored in the `main_output` directory, stratified by their study ID for clarity and ease of reference.
 
 ### Meta Analysis
 - **Input Data Directory:** 
-  - This step aggregates the directories from both gene-level and signature-level analyses.
+  - The meta-analysis step uses the results from both gene-level and signature-level analyses.
   - **Input Directories:** 
-    - Gene level : `./ICB_data`
-    - Signature level : `./output/signature_level_output`
+    - Gene level: `./output/main_output`
+    - Signature level: `./output/main_output`
 - **Output Data Directory:**
   ```bash
-  params.out_dir = './output/meta_analysis_output'
+  params.out_dir = './output/main_output'
   ```
 
 ### Input Data Specifications
@@ -126,15 +133,15 @@ The PredictioR Nextflow pipeline is designed to analyze immunotherapy responses 
   - `method`: Used for signature score calculation
   - `score function`: Specifying the function that should be used in the R script
     
-  For detailed information on the signatures used in the pipeline, refer to the signature(there are more than 50) information CSV available at: [Signature Information CSV](https://github.com/bhklab/SignatureSets/blob/main/data-raw/signature_information.csv). 
+  For detailed information on the signatures used in the pipeline, refer to the signature(there are more than 50) information CSV available at: [Signature Information CSV](https://github.com/bhklab/SignatureSets/tree/main/data-raw). 
 
 ## Running the Pipeline
 Run the pipeline with the configured parameters using Nextflow:
+
 ```bash
-nextflow run gene_level_analysis.nf
-nextflow run signature_level_analysis.nf
-nextflow run meta_analysis.nf
+nextflow run main.nf
 ```
+
 
 ## Additional Notes
 - Necessary R packages and dependencies are installed as specified in `load_libraries.R` and included in the BHK Docker.
