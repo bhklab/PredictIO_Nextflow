@@ -71,7 +71,7 @@ Links:
 // Load RDA data and extract expression, clinical data, and annotation data
 process LoadAndExtractData {
     tag "${study_id}"
-    container 'nextflow-env:latest'
+    container 'bhklab/nextflow-env:latest'
     publishDir "${params.out_dir}/${study_id}", mode: 'copy'
 
     input:
@@ -117,7 +117,7 @@ SECTION: Biomarkers and Immunotherapy Response Association
 // Gene association analysis for OS
 process GeneAssociationOS {
     tag "${study_id}"
-    container 'nextflow-env:latest'
+    container 'bhklab/nextflow-env:latest'
     publishDir "${params.out_dir}/${study_id}", mode: 'copy'
 
     input:
@@ -161,7 +161,7 @@ process GeneAssociationOS {
 // Gene association analysis for PFS
 process GeneAssociationPFS {
     tag "${study_id}"
-    container 'nextflow-env:latest'
+    container 'bhklab/nextflow-env:latest'
     publishDir "${params.out_dir}/${study_id}", mode: 'copy'
 
     input:
@@ -205,7 +205,7 @@ process GeneAssociationPFS {
 // Gene association analysis for response
 process GeneAssociationResponse {
     tag "${study_id}"
-    container 'nextflow-env:latest'
+    container 'bhklab/nextflow-env:latest'
     publishDir "${params.out_dir}/${study_id}", mode: 'copy'
 
     input:
@@ -258,7 +258,7 @@ SECTION: Signature Level Analysis
 // Compute signature scores
 process GeneSigScore {
     tag "${study_id}"
-    container 'bhklab/nextflow-env'
+    container 'bhklab/nextflow-env:latest'
     publishDir "${params.out_dir}/${study_id}", mode: 'copy'
 
     input:
@@ -336,7 +336,7 @@ process GeneSigScore {
 
 process GeneSig_AssociationOS {
     tag "${study_id}"
-    container 'nextflow-env:latest'
+    container 'bhklab/nextflow-env:latest'
     publishDir "${params.out_dir}/${study_id}", mode: 'copy'
 
     input:
@@ -389,7 +389,7 @@ process GeneSig_AssociationOS {
 
 process GeneSig_AssociationPFS {
     tag "${study_id}"
-    container 'nextflow-env:latest'
+    container 'bhklab/nextflow-env:latest'
     publishDir "${params.out_dir}/${study_id}", mode: 'copy'
 
     input:
@@ -439,7 +439,7 @@ process GeneSig_AssociationPFS {
 
 process GeneSig_AssociationResponse {
     tag "${study_id}"
-    container 'nextflow-env:latest'
+    container 'bhklab/nextflow-env:latest'
     publishDir "${params.out_dir}/${study_id}", mode: 'copy'
 
     input:
@@ -520,7 +520,7 @@ pan-cancer and per-cancer analysis.
 
 process MetaAnalysis_Gene_PanCancer {
     tag { "${params.gene_name} using ${io_outcome}" }
-    container 'nextflow-env:latest'
+    container 'bhklab/nextflow-env:latest'
     publishDir "${params.out_dir}", mode: 'copy'
 
     input:
@@ -598,7 +598,7 @@ For cancer-specific analysis, consider meta-analysis when there are at least 3 d
 
 process MetaAnalysis_Gene_PerCancer {
     tag { "${params.gene_name} using ${io_outcome}" }
-    container 'nextflow-env:latest'
+    container 'bhklab/nextflow-env:latest'
     publishDir "${params.out_dir}", mode: 'copy'
 
     input:
@@ -684,7 +684,7 @@ Sigevel Meta-analysis : Pan-cancer
 
 process MetaAnalysis_Sig_PanCancer {
     tag " sigGenes using ${io_outcome}"
-    container 'nextflow-env:latest'
+    container 'bhklab/nextflow-env:latest'
     publishDir "${params.out_dir}", mode: 'copy'
 
     input:
@@ -761,7 +761,7 @@ Sig-level Meta-analysis : Per-cancer
 
 process MetaAnalysis_Sig_PerCancer {
     tag " sigGenes using ${io_outcome}"
-    container 'nextflow-env:latest'
+    container 'bhklab/nextflow-env:latest'
     publishDir "${params.out_dir}", mode: 'copy'
 
     input:
