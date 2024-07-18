@@ -267,7 +267,6 @@ process GeneSigScore {
     output:
     tuple val(study_id), path("${study_id}_GeneSigScore.csv")
 
-
     script:
     """
     #!/usr/bin/env Rscript
@@ -343,20 +342,15 @@ process GeneSig_AssociationOS {
     tuple val(study_id), path(icb_rda_path), path(genescore_path), val(cancer_type), val(treatment)
 
     output:
-    tuple val(study_id), path("${study_id}_os_GeneSig_association.csv")
+    path("${study_id}_os_GeneSig_association.csv")
+
 
     script:
     """
     #!/usr/bin/env Rscript
     source('/R/load_libraries.R')
 
-    # Ensure the file exists before loading
-    if (!file.exists("${icb_rda_path}")) {
-        stop("RDA file not found: ${icb_rda_path}")
-    }
-
     load("${icb_rda_path}")
-    
     geneSig.score <- read.csv("${genescore_path}", row.names = 1)
 
     res.all <- lapply(1:nrow(geneSig.score), function(k) {
@@ -396,7 +390,7 @@ process GeneSig_AssociationPFS {
     tuple val(study_id), path(icb_rda_path), path(genescore_path), val(cancer_type), val(treatment)
 
     output:
-    tuple val(study_id), path("${study_id}_pfs_GeneSig_association.csv")
+    path("${study_id}_pfs_GeneSig_association.csv")
 
     script:
     """
@@ -524,41 +518,23 @@ process MetaAnalysis_Gene_PanCancer {
     publishDir "${params.out_dir}", mode: 'copy'
 
     input:
-    tuple val(io_outcome), path(result_dir)
-    // 'io_outcome' is immunotherapy outcome can be "OS", "PFS" or "Response"
+    tuple val(io_outcome), path(result_files)
 
     output:
     path "Meta_analysis_${io_outcome}_${params.gene_name}_pancancer.csv"
 
     script:
+    def filePaths = result_files.collect { "\"${it}\"" }.join(", ")
     """
     #!/usr/bin/env Rscript
     source('/R/load_libraries.R')
 
-    # Determine the pattern based on io_outcome
-    pattern <- if ('${io_outcome}' == 'OS') {
-        '_cox_os.csv'
-    } else if ('${io_outcome}' == 'PFS') {
-        '_cox_pfs.csv'
-    } else if ('${io_outcome}' == 'Response') {
-        '_logregResponse.csv'
-    } else {
-        stop("Invalid io_outcome: ${io_outcome}. Must be 'OS', 'PFS', or 'Response'.")
-    }
+    # List of input files
+    input_files <-c(${filePaths}) 
 
-    # List all files that contain the pattern in their filenames within subdirectories
-    result_files <- list.files(path = "${result_dir}", pattern = pattern, full.names = TRUE, recursive = TRUE)
-    
-    if (length(result_files) == 0) {
-        stop("No files found matching the pattern. Please check the result directory and pattern.")
-    }
-    
     # Read each file and store the results
-    res <- lapply(result_files, function(file) {
+    res <- lapply(input_files, function(file) {
         df <- read.csv(file)
-        df\$Study <- sub(pattern, "", basename(file))
-        
-        
         df
     })
 
@@ -568,6 +544,7 @@ process MetaAnalysis_Gene_PanCancer {
 
     # Adjust p-values for multiple comparisons using the Benjamini-Hochberg method
     assoc.res\$FDR <- p.adjust(assoc.res\$Pval, method = "BH")
+
 
     # Meta-analysis for a gene across datasets
     res_meta_pancancer <- metafun(
@@ -588,6 +565,7 @@ process MetaAnalysis_Gene_PanCancer {
     """
 }
 
+
 /*
 -----------------------------------------------------------------------
 SUBSECTION: Aggregating Associations through Meta-analysis (Per-cancer)
@@ -602,41 +580,23 @@ process MetaAnalysis_Gene_PerCancer {
     publishDir "${params.out_dir}", mode: 'copy'
 
     input:
-    tuple val(io_outcome), path(result_dir)
-    // 'io_outcome' is immunotherapy outcome can be "OS", "PFS" or "Response"
+    tuple val(io_outcome), path(result_files)
 
     output:
     path "Meta_analysis_${io_outcome}_${params.gene_name}_percancer.csv"
 
     script:
+    def filePaths = result_files.collect { "\"${it}\"" }.join(", ")
     """
     #!/usr/bin/env Rscript
     source('/R/load_libraries.R')
 
-    # Determine the pattern based on io_outcome
-    pattern <- if ('${io_outcome}' == 'OS') {
-        '_cox_os.csv'
-    } else if ('${io_outcome}' == 'PFS') {
-        '_cox_pfs.csv'
-    } else if ('${io_outcome}' == 'Response') {
-        '_logregResponse.csv'
-    } else {
-        stop("Invalid io_outcome: ${io_outcome}. Must be 'OS', 'PFS', or 'Response'.")
-    }
+    # List of input files
+    input_files <- c(${filePaths}) 
 
-    # List all files that contain the pattern in their filenames within subdirectories
-    result_files <- list.files(path = "${result_dir}", pattern = pattern, full.names = TRUE, recursive = TRUE)
-    
-    
-    if (length(result_files) == 0) {
-        stop("No files found matching the pattern. Please check the result directory and pattern.")
-    }
-    
     # Read each file and store the results
-    res <- lapply(result_files, function(file) {
+    res <- lapply(input_files, function(file) {
         df <- read.csv(file)
-        df\$Study <- sub(pattern, "", basename(file))
-        
         df
     })
 
@@ -644,16 +604,11 @@ process MetaAnalysis_Gene_PerCancer {
     assoc.res <- do.call(rbind, res)
     assoc.res <- assoc.res[!is.na(assoc.res\$Coef), ]
 
-    # Check for empty assoc.res
-    if (nrow(assoc.res) == 0) {
-        stop("No valid rows in assoc.res data frame. Please check the input files.")
-    }
-
     # Adjust p-values for multiple comparisons using the Benjamini-Hochberg method
     assoc.res\$FDR <- p.adjust(assoc.res\$Pval, method = "BH")
 
     # Meta-analysis for a gene across datasets
-    res_meta_pancancer <- metafun(
+    res_meta_percancer <- metaPerCanfun(
         coef = assoc.res\$Coef, 
         se = assoc.res\$SE, 
         study = assoc.res\$Study, 
@@ -662,19 +617,22 @@ process MetaAnalysis_Gene_PerCancer {
         cancer.type = assoc.res\$Cancer_type, 
         treatment = assoc.res\$Treatment, 
         feature = "${params.gene_name}", 
-        cancer.spec = FALSE, 
-        treatment.spec = FALSE
+        cancer.spec = TRUE
     )
 
-    # Treatment-specific meta-analysis for a gene across datasets
-    res_meta_percancer <- metaPerCanfun(coef = assoc.res\$Coef, se = assoc.res\$SE, study = assoc.res\$Study, pval = assoc.res\$Pval, n = assoc.res\$N, cancer.type = assoc.res\$Cancer_type, treatment = assoc.res\$Treatment, feature = "${params.gene_name}", cancer.spec = TRUE)
-
-    # Combine all meta_summery results into a single data frame
-    meta_summery_combined <- do.call(rbind, lapply(res_meta_percancer, function(x) x\$meta_summery))
-    write.csv(meta_summery_combined, file = "Meta_analysis_${io_outcome}_${params.gene_name}_percancer.csv", row.names = FALSE)
+    # Save the results to a CSV file
+    write.csv(data.frame(res_meta_percancer), file = "Meta_analysis_${io_outcome}_${params.gene_name}_percancer.csv", row.names = FALSE)
     """
 }
 
+
+
+
+/*
+--------------------------------------------------------
+Sigevel Meta-analysis : Pan-cancer 
+--------------------------------------------------------
+*/
 
 /*
 --------------------------------------------------------
@@ -706,10 +664,6 @@ process MetaAnalysis_Sig_PanCancer {
 
     # List all files that contain the pattern in their filenames
     sig_files <- list.files(path = sig_level_result_dir, pattern = pattern, full.names = TRUE, recursive = TRUE)
-
-    if (length(sig_files) == 0) {
-        stop("No files found matching the pattern. Please check the result directory and pattern.")
-    }
 
     # Read each file and store the results
     res <- lapply(sig_files, function(file) {
@@ -784,10 +738,6 @@ process MetaAnalysis_Sig_PerCancer {
     # List all files that contain the pattern in their filenames
     sig_files <- list.files(path = sig_level_result_dir, pattern = pattern, full.names = TRUE, recursive = TRUE)
 
-    if (length(sig_files) == 0) {
-        stop("No files found matching the pattern. Please check the result directory and pattern.")
-    }
-
     # Read each file and store the results
     res <- lapply(sig_files, function(file) {
         df <- read.csv(file)
@@ -854,7 +804,6 @@ process MetaAnalysis_Sig_PerCancer {
     """
 }
 
-
 workflow {
 
     /*
@@ -881,7 +830,7 @@ workflow {
         genes = 'c("CXCL9", "CXCL10", "TIGIT", "CD83", "STAT1", "CXCL11", "CXCL13", "CD8A", "CTLA4")'
         tuple(study_id, expr_file, clin_file, cancer_type, treatment, genes)
     }
-
+    
 
     /*
     ========================================================
@@ -890,22 +839,20 @@ workflow {
     */
 
     // OS analysis
-    extracted_data_with_info | GeneAssociationOS
+    geneassosiation_os_results = extracted_data_with_info | GeneAssociationOS
 
     // PFS analysis
-    extracted_data_with_info | GeneAssociationPFS
+    geneassosiation_pfs_results = extracted_data_with_info | GeneAssociationPFS
 
     // Immunotherapy response analysis (R vs NR)
-    extracted_data_with_info | GeneAssociationResponse
+    geneassosiation_response_results = extracted_data_with_info | GeneAssociationResponse
 
+ 
     /*
     ========================================================
     SECTION: Signature Score Computation 
     ========================================================
     */
-
-    // Ensure the file paths are treated as file objects
-    icb_rda_files = Channel.fromPath(file("${params.icb_data_dir}/*.rda"))
 
     // Example process using the icb_rda_files channel
     icb_rda_files.map { file -> tuple(file.baseName, file) }.set { query_ch }
@@ -927,7 +874,7 @@ workflow {
         genescore_full_path = file("${params.out_dir}/${study_id}/${study_id}_GeneSigScore.csv")
         tuple(study_id, rda_path, genescore_full_path, cancer_type, treatment)
     }
-
+    
     /*
     ========================================================
     SECTION: Signature Level Analysis
@@ -935,13 +882,13 @@ workflow {
     */
 
     // OS analysis for signatures
-    signature_analysis_with_info | GeneSig_AssociationOS
+    signature_os_results = signature_analysis_with_info | GeneSig_AssociationOS
 
     // PFS analysis for signatures
-    signature_analysis_with_info | GeneSig_AssociationPFS
+    signature_pfs_results = signature_analysis_with_info | GeneSig_AssociationPFS
 
     // Response analysis for signatures
-    signature_analysis_with_info | GeneSig_AssociationResponse
+    signature_response_results = signature_analysis_with_info | GeneSig_AssociationResponse
 
     /*
     ========================================================
@@ -951,25 +898,25 @@ workflow {
 
     /*
     --------------------------------------------------------
-    Genelevel Meta-analysis : Pan-cancer and Perc-Cancer
+    Genelevel Meta-analysis : Pan-cancer and Per-Cancer
     --------------------------------------------------------
     */
 
     // 1. Pan-cancer
-    // you can choose "OS", "PFS" or "Response" as io_outcome
-    meta_analysis_pancancer = Channel.of(['OS', file("${params.out_dir}")])
-    meta_analysis_pancancer | MetaAnalysis_Gene_PanCancer
+    // "OS", "PFS" or "Response" can be used as io_outcome
+    gene_os_result_files = geneassosiation_os_results.collectFile().flatten()
+    gene_pfs_result_files = geneassosiation_pfs_results.collectFile().flatten()
+    gene_response_result_files = geneassosiation_response_results.collectFile().flatten()
 
-    // 2. Per-cancer
-    // you can choose "OS", "PFS" or "Response" as io_outcome
-    meta_analysis_percancer = Channel.of(['PFS', file("${params.out_dir}")])
-    meta_analysis_percancer | MetaAnalysis_Gene_PerCancer
 
+    // Perform meta-analysis for PFS
+    gene_os_result_files.map { files -> tuple('OS', files) } | MetaAnalysis_Gene_PanCancer
+    gene_response_result_files.map { files -> tuple('PFS', files) } | MetaAnalysis_Gene_PerCancer
+    
     /*
     --------------------------------------------------------
-    Signituare-level Meta-analysis : Pan-cancer and Perc-Cancer
+    Signituare-level Meta-analysis : Pan-cancer and Per-Cancer
     --------------------------------------------------------
-    */
 
     // 1. Pan-cancer
     // you can choose "OS", "PFS" or "Response" as io_outcome
@@ -979,5 +926,7 @@ workflow {
     // 2. Per-cancer
     meta_analysis_sig_percancer = Channel.of(['Response', file("${params.out_dir}")])
     meta_analysis_sig_percancer | MetaAnalysis_Sig_PerCancer
+
+    */
 
 }
