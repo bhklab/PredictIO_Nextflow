@@ -332,7 +332,7 @@ process GeneSigScore {
     """
 }
 
-
+// OS analysis for signatures
 process GeneSig_AssociationOS {
     tag "${study_id}"
     container 'bhklab/nextflow-env:latest'
@@ -381,6 +381,7 @@ process GeneSig_AssociationOS {
     """
 }
 
+// PFS analysis for signatures
 process GeneSig_AssociationPFS {
     tag "${study_id}"
     container 'bhklab/nextflow-env:latest'
@@ -429,8 +430,7 @@ process GeneSig_AssociationPFS {
     """
 }
 
-// Repeat similar changes for other processes such as GeneSig_AssociationOS, GeneSig_AssociationResponse, etc.
-
+// Response(RvsNR) analysis for signatures
 process GeneSig_AssociationResponse {
     tag "${study_id}"
     container 'bhklab/nextflow-env:latest'
