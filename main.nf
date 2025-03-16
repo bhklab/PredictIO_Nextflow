@@ -670,13 +670,7 @@ process MetaAnalysis_Gene_PerCancer {
 
 /*
 --------------------------------------------------------
-Sigevel Meta-analysis : Pan-cancer 
---------------------------------------------------------
-*/
-
-/*
---------------------------------------------------------
-Sigevel Meta-analysis : Pan-cancer 
+Sig-level Meta-analysis : Pan-cancer 
 --------------------------------------------------------
 */
 
