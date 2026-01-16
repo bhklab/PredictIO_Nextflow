@@ -52,7 +52,7 @@ Before running the pipeline, the project directory should contain:
 * `nextflow.config`: Pipeline configuration
 * `ICB_data/`: Gene-level input data
 * `SIG_data/`: Signature-level input data
-* `output/main_output/` — Pipeline results (created automatically)
+* `output/main_output/` Pipeline results (created automatically)
 
 ### Gene-level input (`ICB_data/`)
 
@@ -86,9 +86,9 @@ Example signature files:
 
 Typical columns in `sig`:
 
-* `signature_name` — Name of the signature
-* `gene_name` — Name of the gene
-* `weight` — Weight assigned to each gene
+* `signature_name`: Name of the signature
+* `gene_name`: Name of the gene
+* `weight`: Weight assigned to each gene
 
 Signature definitions are sourced from:
 [https://github.com/bhklab/SignatureSets](https://github.com/bhklab/SignatureSets)
@@ -203,9 +203,9 @@ This table summarizes each signature name by study and PMID references, the meth
 
 ### Required Columns
 
-* `signature` — Name of the signature (must match names in `./SIG_data`)
-* `method` — Method used for signature score calculation
-* `score function` — Function used in the R script for scoring
+* `signature`: Name of the signature (must match names in `./SIG_data`)
+* `method`: Method used for signature score calculation
+* `score function`: Function used in the R script for scoring
 
 For detailed information on the signatures used in the pipeline, refer to the signature information CSV (50+ signatures) available at:
 [https://github.com/bhklab/SignatureSets/tree/main/data-raw](https://github.com/bhklab/SignatureSets/tree/main/data-raw)
