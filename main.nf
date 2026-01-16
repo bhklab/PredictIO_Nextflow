@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 params.icb_data_dir = './ICB_data'
 params.sig_data_dir = './SIG_data'
 params.sig_summery_dir = './sig_summery_info' 
-params.out_dir = './output/main_output'
+params.out_dir = './output'
 params.gene_name = "CXCL9"
 
 // Define cancer type and treatment for each study
