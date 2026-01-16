@@ -52,7 +52,7 @@ Before running the pipeline, the project directory should contain:
 * `nextflow.config`: Pipeline configuration
 * `ICB_data/`: Gene-level input data
 * `SIG_data/`: Signature-level input data
-* `output/main_output/` Pipeline results (created automatically)
+* `output/` Pipeline results (created automatically)
 
 ### Gene-level input (`ICB_data/`)
 
