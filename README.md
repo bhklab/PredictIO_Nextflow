@@ -200,8 +200,6 @@ nextflow run main.nf -profile standard \
 
 ### parameter
 
-## Parameters
-
 * `--gene` *Required, all modes*  
   R gene vector string.  
   Examples: *'c("CXCL9")'*; *'c("CXCL9","CXCL10","STAT1","CD8A")'*.  
