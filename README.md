@@ -198,41 +198,16 @@ nextflow run main.nf -profile standard \
 
 ### parameter
 
-* `--gene` *Required, all modes*  
-  R gene vector string.  
-  Examples: *'c("CXCL9")'*; *'c("CXCL9","CXCL10","STAT1","CD8A")'*.  
-  Genes must be present in the expression matrix and match dataset gene identifiers.
+## Parameters
 
-* `--input_mode` *Optional, all modes*  
-  *se* default SummarizedExperiment `.rda` input  
-  *csv* expression and clinical CSV input  
-  *se_all* run all SummarizedExperiment `.rda` files in `--icb_data_dir`  
-  *csv_all* run all paired expression and clinical CSV files in `--icb_data_dir`
-
-* `--study` *Optional, SE modes only*  
-  Single study, comma-separated studies, or *ALL*.  
-  If omitted in *se* mode, all `.rda` files in `--icb_data_dir` are processed.
-
-* `--expr_csv` *Required, CSV mode only*  
-  Expression basename under `--icb_data_dir`.  
-  Example: *ICB_small_Liu_expr* → `ICB_data/ICB_small_Liu_expr.csv`
-
-* `--clin_csv` *Required, CSV mode only*  
-  Clinical basename under `--icb_data_dir`.  
-  Example: *ICB_small_Liu_clin* → `ICB_data/ICB_small_Liu_clin.csv`
-
-* `--study_id` *Required, CSV mode only*  
-  Cohort label used for output naming.  
-  Example: *ICB_small_Liu*
-
-* `--sigs` *Optional, all modes*  
-  Signature subset as an R vector string.  
-  Example: *'c("CYT_Rooney","Teff_McDermott")'*.  
-  If omitted, all signatures are scored.
-
-* `--run_meta` *Optional, all modes*  
-  *false* disables meta analysis.  
-  *true* runs pan cancer and per cancer meta analysis for gene and signature results.
+* `--gene` *Required, all modes* Gene list as an R vector string. Examples: *'c("CXCL9")'*; *'c("CXCL9","CXCL10","STAT1","CD8A")'*. Genes must be present in the expression matrix and match dataset gene identifiers.
+* `--input_mode` *Optional, all modes* *se* default SummarizedExperiment `.rda`; *csv* expression + clinical CSV; *se_all* run all `.rda` in `--icb_data_dir`; *csv_all* run all paired expr and clin CSV in `--icb_data_dir`.
+* `--study` *Optional, SE modes only* Single study, comma-separated studies, or *ALL*. If omitted in *se* mode, all `.rda` in `--icb_data_dir` are processed.
+* `--expr_csv` *Required, CSV mode only* Expression basename under `--icb_data_dir`. Example: *ICB_small_Liu_expr* → `ICB_data/ICB_small_Liu_expr.csv`.
+* `--clin_csv` *Required, CSV mode only* Clinical basename under `--icb_data_dir`. Example: *ICB_small_Liu_clin* → `ICB_data/ICB_small_Liu_clin.csv`.
+* `--study_id` *Required, CSV mode only* Cohort label used for output naming. Example: *ICB_small_Liu*.
+* `--sigs` *Optional, all modes* Signature subset as an R vector string. Example: *'c("CYT_Rooney","Teff_McDermott")'*. If omitted, all signatures are scored.
+* `--run_meta` *Optional, all modes* *false* disables meta analysis; *true* runs pan cancer and per cancer meta analysis for gene and signature results.
 
 ## Step 5: Review and interpret outputs
 
