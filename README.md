@@ -12,7 +12,7 @@ The main workflow (`main.nf`) consists of three sequential analysis stages:
 * **Signature-level analysis**
 * **Meta-analysis**
 
-## Quickstart (Start → End)
+## Quickstart 
 
 * **Step 1:** [Install Nextflow and Docker](#step-1-install-nextflow-and-docker)
 * **Step 2:** [Project structure](#step-2-project-structure)
@@ -237,7 +237,6 @@ nextflow run main.nf -profile standard \
 * `--run_meta` *Optional, all modes*  
   *false* disables meta analysis.  
   *true* runs pan cancer and per cancer meta analysis for gene and signature results.
-
 
 ## Step 5: Review and interpret outputs
 
