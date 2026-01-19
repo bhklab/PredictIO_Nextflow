@@ -1,0 +1,5 @@
+"Outcome","Gene","Study","Coef","SE","N","Pval","Cancer_type","Treatment","FDR"
+"R vs NR","STAT1","ICB_small_Nathanson",-0.515,0.456,24,0.258930501200443,"Melanoma","CTLA4",0.504020689907026
+"R vs NR","CXCL9","ICB_small_Nathanson",-0.292,0.436,24,0.504020689907026,"Melanoma","CTLA4",0.504020689907026
+"R vs NR","CD8A","ICB_small_Nathanson",-0.351,0.44,24,0.425002630100411,"Melanoma","CTLA4",0.504020689907026
+"R vs NR","CXCL10","ICB_small_Nathanson",-0.357,0.441,24,0.418190316069641,"Melanoma","CTLA4",0.504020689907026

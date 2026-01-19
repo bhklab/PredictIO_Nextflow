@@ -1,0 +1,5 @@
+"Outcome","Gene","Study","Coef","SE","N","Pval","Cancer_type","Treatment","FDR"
+"R vs NR","STAT1","ICB_small_Van_Allen",-0.58,0.427,39,0.174219285526891,"Melanoma","CTLA4",0.284586264970494
+"R vs NR","CXCL9","ICB_small_Van_Allen",-0.611,0.496,39,0.217734850787082,"Melanoma","CTLA4",0.284586264970494
+"R vs NR","CD8A","ICB_small_Van_Allen",-0.475,0.444,39,0.284586264970494,"Melanoma","CTLA4",0.284586264970494
+"R vs NR","CXCL10","ICB_small_Van_Allen",-0.779,0.664,39,0.240372354406505,"Melanoma","CTLA4",0.284586264970494
