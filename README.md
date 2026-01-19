@@ -201,37 +201,37 @@ nextflow run main.nf -profile standard \
 ### parameter
 
 * `--gene` is required in all modes and must be provided as an R vector string  
-  Examples single gene `'c("CXCL9")'` and multiple genes `'c("CXCL9","CXCL10","STAT1","CD8A")'`  
+  Examples single gene *'c("CXCL9")'* and multiple genes *'c("CXCL9","CXCL10","STAT1","CD8A")'*  
   Genes must be present in the expression matrix and match the gene identifiers used in the dataset
 
 * `--input_mode` selects the input format  
-  `se` default SummarizedExperiment `.rda` input  
-  `csv` expression and clinical CSV input  
-  `se_all` run all SummarizedExperiment `.rda` files in `--icb_data_dir`  
-  `csv_all` run all paired expression and clinical CSV files in `--icb_data_dir`
+  *se* default SummarizedExperiment .rda input  
+  *csv* expression and clinical CSV input  
+  *se_all* run all SummarizedExperiment .rda files in `--icb_data_dir*  
+  *csv_all* run all paired expression and clinical CSV files in *--icb_data_dir*
 
 * `--study` is used in SummarizedExperiment modes  
-  Use a single study eg `ICB_small_Liu`  
-  Use multiple studies eg `ICB_small_Liu,ICB_small_Mariathasan`  
-  Use `ALL` to run all `.rda` files in `--icb_data_dir`  
-  If omitted in `se` mode all `.rda` files are processed
+  Use a single study eg *ICB_small_Liu*  
+  Use multiple studies eg *ICB_small_Liu,ICB_small_Mariathasan*  
+  Use *ALL* to run all .rda files in *--icb_data_dir*  
+  If omitted in *se* mode all .rda files are processed
 
-* `--expr_csv` is used in CSV mode and is the expression basename under `--icb_data_dir`  
-  Example `ICB_small_Liu_expr` refers to `ICB_data/ICB_small_Liu_expr.csv`
+* `--expr_csv` is used in CSV mode and is the expression basename under *--icb_data_dir*  
+  Example *ICB_small_Liu_expr* refers to *ICB_data/ICB_small_Liu_expr.csv*
 
-* `--clin_csv` is used in CSV mode and is the clinical basename under `--icb_data_dir`  
-  Example `ICB_small_Liu_clin` refers to `ICB_data/ICB_small_Liu_clin.csv`
+* `--clin_csv` is used in CSV mode and is the clinical basename under *--icb_data_dir*  
+  Example *ICB_small_Liu_clin* refers to *ICB_data/ICB_small_Liu_clin.csv*
 
 * `--study_id` is used in CSV mode and defines the cohort label used in outputs  
-  Example `ICB_small_Liu`
+  Example *ICB_small_Liu*
 
 * `--sigs` is optional and subsets signatures using an R vector string  
-  Example `'c("CYT_Rooney","Teff_McDermott")'`  
+  Example *'c("CYT_Rooney","Teff_McDermott")'*  
   If omitted all signatures are scored
 
 * `--run_meta` controls meta analysis  
-  `false` disables meta analysis (no pan cancer or per cancer meta outputs)  
-  `true` runs meta analysis for all outputs (pan cancer and per cancer; gene level and signature level)
+  *false* disables meta analysis (no pan cancer or per cancer meta outputs)  
+  *true* runs meta analysis for all outputs (pan cancer and per cancer; gene level and signature level)
 
 
 ## Step 5: Review and interpret outputs
