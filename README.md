@@ -64,8 +64,6 @@ Each cohort is expected to represent a single cancer type and a single treatment
 
 ### 3.1 Gene-level input (`ICB_data/`)
 
-Each cohort should represent a single cancer type and a single treatment category
-
 #### 3.1.1 SummarizedExperiment mode (default; recommended)
 
 * **Input:** Bioconductor `SummarizedExperiment` objects stored as `.rda` files
