@@ -1,11 +1,10 @@
-
 # PredictioR Nextflow Pipeline
 
 ## Overview
 
 The PredictioR Nextflow pipeline analyzes immunotherapy response data to identify biomarkers across multiple cancer types. The workflow is implemented in Nextflow for scalable workflow management and executed using Docker to ensure reproducible and portable analyses.
 
-Input datasets are provided as Bioconductor `SummarizedExperiment` objects, enabling standardized handling of gene expression data, clinical annotations, and immunotherapy outcome variables.
+PredictioR-NF supports input data provided either as Bioconductor `SummarizedExperiment` (`.rda`) objects (recommended) or as paired expression and clinical CSV files. For each cohort, the pipeline evaluates gene-level and gene-signature-level associations with immunotherapy outcomes, including overall survival (OS), progression-free survival (PFS), and treatment response (R vs NR). When multiple cohorts are analyzed, results can be aggregated using pan-cancer and per-cancer meta-analysis.
 
 The main workflow (`main.nf`) consists of three sequential analysis stages:
 
@@ -13,12 +12,15 @@ The main workflow (`main.nf`) consists of three sequential analysis stages:
 * **Signature-level analysis**
 * **Meta-analysis**
 
-## Quickstart
+## Quickstart (Start → End)
 
 * **Step 1:** [Install Nextflow and Docker](#step-1-install-nextflow-and-docker)
-* **Step 2:** [Prepare input data](#step-2-prepare-clinical-input-data)
-* **Step 3:** [Run the PredictioR pipeline](#step-3-run-the-predictior-pipeline)
-* **Step 4:** [Review and interpret outputs](#step-4-review-and-interpret-outputs)
+* **Step 2:** [Project structure](#step-2-project-structure)
+* **Step 3:** [Prepare input data](#step-3-prepare-input-data)
+* **Step 4:** [Run the PredictioR pipeline](#step-4-run-the-predictior-pipeline)
+* **Step 5:** [Review and interpret outputs](#step-5-review-and-interpret-outputs)
+* **Step 6:** [Analyses performed](#step-6-analyses-performed)
+* **Step 7:** [Reference resources](#step-7-reference-resources)
 
 ## Step 1: Install Nextflow and Docker
 
@@ -42,21 +44,29 @@ Pull the image:
 docker pull bhklab/nextflow-env
 ```
 
-## Step 2: Prepare clinical input data
-
-### Project Structure
+## Step 2: Project Structure
 
 Before running the pipeline, the project directory should contain:
 
-* `main.nf`: Main Nextflow workflow
-* `nextflow.config`: Pipeline configuration
-* `ICB_data/`: Gene-level input data
-* `SIG_data/`: Signature-level input data
-* `output/` Pipeline results (created automatically)
+```
+.
+├── main.nf                 # Nextflow workflow (gene + signature association + meta-analysis)
+├── nextflow.config         # Profiles/resources + Docker settings
+├── ICB_data/               # Cohort inputs: *.rda (SE mode) or *_expr.csv + *_clin.csv (CSV mode)
+├── SIG_data/               # Signature .rda files (each loads a `sig` data frame)
+├── sig_summery_info/       # Signature metadata (signature_information.csv)
+└── output/                 # Results (auto-created): studies/<study_id>/ and meta/
+```
 
-### Gene-level input (`ICB_data/`)
+## Step 3: Prepare input data
 
-* Contains Bioconductor `SummarizedExperiment` `.rda` files
+PredictioR-NF supports two gene-level input modes, controlled via `--input_mode`.
+
+### 3.1 Gene-level input (`ICB_data/`)
+
+#### 3.1.1 SummarizedExperiment mode (default; recommended)
+
+* **Input:** Bioconductor `SummarizedExperiment` objects stored as `.rda` files
 * These objects enable standardized handling of:
 
   * Gene expression data
@@ -74,7 +84,39 @@ Example datasets directory:
 `SummarizedExperiment` documentation:
 [https://bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/SummarizedExperiment.html](https://bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/SummarizedExperiment.html)
 
-### Signature-level input (`SIG_data/`)
+#### 3.1.2 CSV mode
+
+CSV mode enables analysis of custom cohorts without requiring a `SummarizedExperiment`.
+
+**Expression CSV**
+
+* Genes × samples matrix
+* Rows = gene identifiers
+* Columns = sample IDs
+
+**Clinical CSV**
+
+* One row per sample
+* Sample identifiers must align to expression column names
+
+**Mandatory sample-matching requirement**
+Expression column names **must exactly match** clinical sample identifiers (order does not need to match).
+
+##### Required clinical columns
+
+| Column               | Description                                    |
+| -------------------- | ---------------------------------------------- |
+| `cancer_type`        | Cancer type (single unique value per study)    |
+| `treatment`          | Treatment type (single unique value per study) |
+| `response`           | Response (`R` / `NR`)                          |
+| `survival_time_os`   | Overall survival time                          |
+| `survival_time_pfs`  | Progression-free survival time                 |
+| `event_occurred_os`  | OS event indicator (1 = event, 0 = censored)   |
+| `event_occurred_pfs` | PFS event indicator (1 = event, 0 = censored)  |
+
+Additional recommended columns include `patientid`, `tissueid`, `survival_unit`, `sex`, `age`, `histology`, and `stage`.
+
+### 3.2 Signature-level input (`SIG_data/`)
 
 * Contains `.rda` files storing a data frame named `sig`
 
@@ -90,60 +132,168 @@ Typical columns in `sig`:
 * `gene_name`: Name of the gene
 * `weight`: Weight assigned to each gene
 
-Signature definitions are sourced from:
-[https://github.com/bhklab/SignatureSets](https://github.com/bhklab/SignatureSets)
+Signature metadata (scoring method, algorithm type) is read from: `sig_summery_info/signature_information.csv`.
+Signature definitions are sourced from: [https://github.com/bhklab/SignatureSets](https://github.com/bhklab/SignatureSets)
 
 Full signature metadata (50+ signatures) is available at:
 [https://github.com/bhklab/SignatureSets/tree/main/data-raw](https://github.com/bhklab/SignatureSets/tree/main/data-raw)
 
 Please follow the same format for consistency.
 
-## Step 3: Run the PredictioR pipeline
+## Step 4: Run the PredictioR pipeline
 
-Run the pipeline from the project root:
+Run the pipeline from the project root.
+
+### General usage
 
 ```bash
-nextflow run main.nf -profile docker
+nextflow run main.nf -profile standard \
+  --input_mode se|csv|se_all|csv_all \
+  --gene <R_gene_vector> \
+  --study <study_id_or_ALL> \
+  --sigs <R_signature_vector> \
+  --expr_csv <expression_basename> \
+  --clin_csv <clinical_basename> \
+  --study_id <custom_study_name> \
+  --icb_data_dir ./ICB_data \
+  --sig_data_dir ./SIG_data \
+  --sig_summary_dir ./sig_summery_info \
+  --out_dir ./output \
+  --run_meta true|false
 ```
 
-## Step 4: Review and interpret outputs
+### Examples
 
-All results are written to:
+**Example 1: SE mode, single cohort, subset of signatures**
 
-* `./output/main_output/`
+```bash
+nextflow run main.nf -profile standard \
+  --input_mode se \
+  --study ICB_small_Liu \
+  --gene 'c("CXCL9")' \
+  --sigs 'c("CYT_Rooney","Teff_McDermott")' \
+  --run_meta false
+```
 
-Outputs are:
+**Example 2: SE mode, run all cohorts, with meta-analysis**
 
-* Organized by **study ID**
-* Stratified by **analysis stage** (gene-level, signature-level, meta-analysis)
+```bash
+nextflow run main.nf -profile standard \
+  --input_mode se \
+  --study ALL \
+  --gene 'c("CXCL9","CXCL10","STAT1","CD8A")' \
+  --run_meta true
+```
 
-## Reference Resources
+**Example 3: CSV mode, single cohort**
+
+```bash
+nextflow run main.nf -profile standard \
+  --input_mode csv \
+  --study_id ICB_small_Liu \
+  --expr_csv ICB_small_Liu_expr \
+  --clin_csv ICB_small_Liu_clin \
+  --gene 'c("CXCL9")'
+```
+
+### parameter
+
+* `--gene` is required in all modes and must be provided as an R vector string
+  Examples: single gene 'c("CXCL9")' and multiple genes 'c("CXCL9","CXCL10","STAT1","CD8A")'
+
+* `--input_mode` selects the input format
+  se default SummarizedExperiment .rda input
+  csv expression and clinical CSV input
+  se_all run all .rda SummarizedExperiment files in icb_data_dir
+  csv_all run all paired expr and clin CSV files in icb_data_dir
+
+* `--study` is used in SummarizedExperiment modes
+  Use a single study eg ICB_small_Liu
+  Use multiple studies eg ICB_small_Liu,ICB_small_Mariathasan
+  Use ALL to run all .rda files in icb_data_dir
+  If omitted in se mode all .rda files are processed
+
+* `--expr_csv` is used in CSV mode and is the expression basename under icb_data_dir
+  Example ICB_small_Liu_expr refers to ICB_data/ICB_small_Liu_expr.csv
+
+* `--clin_csv` is used in CSV mode and is the clinical basename under icb_data_dir
+  Example ICB_small_Liu_clin refers to ICB_data/ICB_small_Liu_clin.csv
+
+* `--study_id` is used in CSV mode and defines the cohort label used in outputs
+  Example ICB_small_Liu
+
+* `--sigs` is optional and subsets signatures using an R vector string
+  Example 'c("CYT_Rooney","Teff_McDermott")'
+  If omitted all signatures are scored
+
+* `--run_meta` controls meta analysis
+  false disables meta analysis (no pan cancer or per cancer meta outputs)
+  true runs meta analysis for all outputs (pan cancer and per cancer; gene level and signature level)
+
+## Step 5: Review and interpret outputs
+
+All outputs are written to `--out_dir` (default: `./output`).
+
+```
+output/
+├── studies/
+│   └── <study_id>/ 
+└── meta/
+```
+
+* **Per-study outputs:** organized by study ID include extracted inputs, gene-level association results, signature scores, and signature-level association results.
+* **Meta-analysis outputs:** include pan-cancer and per-cancer summary tables.
+
+
+## Step 6: Analyses performed
+
+### Gene-level analysis
+
+* Overall survival (OS): Cox proportional hazards regression
+* Progression-free survival (PFS): Cox proportional hazards regression
+* Response (R vs NR): Logistic regression
+* Multiple-testing correction using Benjamini–Hochberg FDR
+
+### Signature-level analysis
+
+* Signature scoring via GSVA, ssGSEA, weighted mean, or signature-specific algorithms
+* Association testing for OS, PFS, and response
+* Benjamini–Hochberg FDR correction
+
+### Meta-analysis (optional)
+
+* Pan-cancer meta-analysis
+* Per-cancer meta-analysis (performed only when sufficient supporting studies exist)
+* Conducted separately for gene-level and signature-level results
+
+
+## Step 7: Reference Resources
 
 * **GitHub repository:** [https://github.com/bhklab/PredictioR](https://github.com/bhklab/PredictioR)
 * **Associated publication:** [https://pubmed.ncbi.nlm.nih.gov/36055464/](https://pubmed.ncbi.nlm.nih.gov/36055464/)
+
 
 ## Data Directory Configuration
 
 ### Gene-level Analysis
 
 * **Input Data Directory:** `params.gene_data_dir = './ICB_data'`
-* **Output Data Directory:** `params.out_dir = './output/main_output'`
-* **Output Details:** Results are stored in `main_output`, stratified by study ID.
+* **Output Data Directory:** `params.out_dir = './output/studies'` (results stored stratified by study ID)
 
 ### Signature-level Analysis
 
 * **Input Data Directory:** `params.signature_data_dir = './SIG_data'`
-* **Output Data Directory:** `params.out_dir = './output/main_output'`
-* **Output Details:** Results are stored in `main_output`, stratified by study ID.
+* **Output Data Directory:** `params.out_dir = './output/studies'` (results stored stratified by study ID)
 
 ### Meta-analysis
 
 * The meta-analysis step uses results from both gene-level and signature-level analyses.
 * **Input directories:**
 
-  * Gene level: `./output/main_output`
-  * Signature level: `./output/main_output`
-* **Output Data Directory:** `params.out_dir = './output/main_output'`
+  * Gene level: `./output/studies/<studyid>` OS/PFS/response CSV files
+  * Signature level: `./output/studies/<studyid>` OS/PFS/response CSV files
+* **Output Data Directory:** `params.out_dir = './output/meta'`
+
 
 ## Input Data Specifications
 
@@ -175,7 +325,6 @@ Ensure that clinical data are properly organized with all required and additiona
 * `survival_unit`: Measurement units for survival times (typically months)
 * `event_occurred_pfs`: Binary indicator of event occurrence during PFS (1/0)
 * `event_occurred_os`: Binary indicator of event occurrence during OS (1/0)
-
 
 ### Additional Recommended Fields
 
@@ -210,8 +359,14 @@ This table summarizes each signature name by study and PMID references, the meth
 For detailed information on the signatures used in the pipeline, refer to the signature information CSV (50+ signatures) available at:
 [https://github.com/bhklab/SignatureSets/tree/main/data-raw](https://github.com/bhklab/SignatureSets/tree/main/data-raw)
 
+
 ## Additional Notes
 
 * Required R packages and dependencies are installed as specified in `load_libraries.R` and included in the BHK Docker image
 * Customize `nextflow.config` to specify any additional parameters or configurations required for your specific analysis needs
+
+## Contact
+
+For questions or support, contact: [nasim.bondarsahebi@uhn.ca](mailto:nasim.bondarsahebi@uhn.ca), [farnoosh.abbasaghababazadeh@uhn.ca](mailto:farnoosh.abbasaghababazadeh@uhn.ca)
+
 
