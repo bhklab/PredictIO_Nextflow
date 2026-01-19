@@ -47,3 +47,11 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+
+## Nextflow runtime files
+work/
+.nextflow/
+.nextflow.log
+.nextflow.log.*
+
