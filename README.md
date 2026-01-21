@@ -131,6 +131,10 @@ Expression column names **must exactly match** clinical sample identifiers (orde
 | `event_occurred_os`  | OS event indicator (1 = event, 0 = censored)   |
 | `event_occurred_pfs` | PFS event indicator (1 = event, 0 = censored)  |
 
+**Endpoints and definitions**
+ - `survival_time_os` and `survival_time_pfs` are in **months**.
+ - `response` is encoded as **R** (responder) vs **NR** (non-responder), following the original cohort publication [PMID: 36055464](https://pubmed.ncbi.nlm.nih.gov/36055464/).
+
 Additional recommended columns include `patientid`, `tissueid`, `survival_unit`, `sex`, `age`, `histology`, and `stage`.
 
 ### 3.2 Signature-level input (`SIG_data/`)
@@ -153,7 +157,7 @@ Signature metadata (scoring method, algorithm type) is read from: [signature_inf
 Signature definitions are sourced from: [bhklab/SignatureSets](https://github.com/bhklab/SignatureSets)
 
 Full signature metadata (50+ signatures) is available at:
-[https://github.com/bhklab/SignatureSets/tree/main/data-raw](https://github.com/bhklab/SignatureSets/tree/main/data-raw)
+[bhklab/SignatureSets/tree/main/data-raw](https://github.com/bhklab/SignatureSets/tree/main/data-raw)
 
 Please follow the same format for consistency.
 
