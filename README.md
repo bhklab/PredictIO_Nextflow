@@ -79,6 +79,8 @@ Each cohort is expected to represent a single cancer type and a single treatment
 
 **FAIR data note:**PredictioR-NF assumes standardized, well-annotated inputs to enable reproducible analyses and reuse across cohorts. We recommend `SummarizedExperiment` to keep molecular assays, sample metadata, and feature annotations together, with consistent sample IDs and harmonized clinical endpoint variables.
 
+**Curation standards:** Cohort clinical variables and genomic metadata were curated and harmonized using **mCODE** concepts where applicable, and aligned with **ICGC/ICGC-ARGO** conventions for cancer cohort data representation.
+
 ### 3.1 Gene-level input (`ICB_data/`)
 
 #### 3.1.1 SummarizedExperiment mode (default; recommended)
