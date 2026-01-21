@@ -292,7 +292,7 @@ output/
 ## Step 7: Reference Resources
 
 * **GitHub repository:** [https://github.com/bhklab/PredictioR](https://github.com/bhklab/PredictioR)
-* **Associated publication:** [https://pubmed.ncbi.nlm.nih.gov/36055464/](https://pubmed.ncbi.nlm.nih.gov/36055464/)
+* **Associated publication:** [Leveraging big data of immune checkpoint blockade response identifies novel potential targets](https://pubmed.ncbi.nlm.nih.gov/36055464/)
 
 
 ## Data Directory Configuration
