@@ -2,15 +2,14 @@
 
 ## Overview
 
-The PredictioR Nextflow (PredictioR-NF) pipeline is a scalable, end-to-end workflow for immunotherapy biomarker discovery across multiple cancer cohorts. The workflow is implemented in Nextflow and runs in Docker for reproducible and portable analyses.
+The PredictioR Nextflow (PredictioR-NF) pipeline is a scalable, end-to-end workflow for immunotherapy biomarker discovery across multiple cancer cohorts. It is implemented in Nextflow and runs in Docker for reproducible and portable analyses.
 
-PredictioR-NF accepts input data as Bioconductor `SummarizedExperiment` (.rda, recommended) or paired expression and clinical CSV files. For each cohort, it evaluates gene-level and gene-signature associations with immunotherapy outcomes, including overall survival (OS), progression-free survival (PFS), and treatment response (R vs NR). When multiple cohorts are provided, results are aggregated using pan-cancer and cancer-specific meta-analysis.
+PredictioR-NF accepts input data as Bioconductor `SummarizedExperiment` (`.rda`, recommended) or paired expression and clinical CSV files. For each cohort, it performs gene-level and gene-signature association testing, and can optionally aggregate results across cohorts using pan-cancer and cancer-specific meta-analysis.
 
 The main workflow (`main.nf`) consists of three sequential analysis stages:
-
-* **Gene-level analysis**
-* **Signature-level analysis**
-* **Meta-analysis**
+- **Gene-level analysis**
+- **Signature-level analysis**
+- **Meta-analysis**
 
 ## Quickstart 
 
@@ -24,13 +23,13 @@ The main workflow (`main.nf`) consists of three sequential analysis stages:
 
 ## Step 1: Install Nextflow and Docker
 
-***Before you start (recommended environment + versions)**
+**Before you start (recommended environment + versions)**
 
 - **Linux/macOS:** supported.
 - **Windows:** run in **WSL2 (Ubuntu) + Docker Desktop** (recommended). PowerShell also works.
 - **Avoid on Windows:** **Git Bash / MINGW64** (Nextflow can fail due to terminal/signal limitations).
 
-**Requirements:** Java **≥17** (tested **21/25**), Nextflow **≥24.04**, Docker Engine/Docker Desktop **≥24**.  
+**Requirements:** Java **≥17** (tested **21/25**), Nextflow **≥24.04** (tested with newer versions), Docker Engine/Docker Desktop **≥24**.  
 **Docker image:** `bhklab/nextflow-env`
 
 ### Nextflow
@@ -77,6 +76,8 @@ Before running the pipeline, the project directory should contain:
 ## Step 3: Prepare input data
 
 Each cohort is expected to represent a single cancer type and a single treatment category.
+
+**FAIR data note:**PredictioR-NF assumes standardized, well-annotated inputs to enable reproducible analyses and reuse across cohorts. We recommend `SummarizedExperiment` to keep molecular assays, sample metadata, and feature annotations together, with consistent sample IDs and harmonized clinical endpoint variables.
 
 ### 3.1 Gene-level input (`ICB_data/`)
 
