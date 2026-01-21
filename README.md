@@ -149,8 +149,8 @@ Typical columns in `sig`:
 * `gene_name`: Name of the gene
 * `weight`: Weight assigned to each gene
 
-Signature metadata (scoring method, algorithm type) is read from: `sig_summery_info/signature_information.csv`.
-Signature definitions are sourced from: [https://github.com/bhklab/SignatureSets](https://github.com/bhklab/SignatureSets)
+Signature metadata (scoring method, algorithm type) is read from: [signature_information_io.csv](https://github.com/bhklab/SignatureSets/blob/main/data-raw/signature_information_io.csv).
+Signature definitions are sourced from: [bhklab/SignatureSets](https://github.com/bhklab/SignatureSets)
 
 Full signature metadata (50+ signatures) is available at:
 [https://github.com/bhklab/SignatureSets/tree/main/data-raw](https://github.com/bhklab/SignatureSets/tree/main/data-raw)
