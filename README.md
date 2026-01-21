@@ -23,15 +23,6 @@ The main workflow (`main.nf`) consists of three sequential analysis stages:
 
 ## Step 1: Install Nextflow and Docker
 
-**Before you start (recommended environment + versions)**
-
-- **Linux/macOS:** supported.
-- **Windows:** run in **WSL2 (Ubuntu) + Docker Desktop** (recommended). PowerShell also works.
-- **Avoid on Windows:** **Git Bash / MINGW64** (Nextflow can fail due to terminal/signal limitations).
-
-**Requirements:** Java **≥17** (tested **21/25**), Nextflow **≥24.04** (tested with newer versions), Docker Engine/Docker Desktop **≥24**.  
-**Docker image:** `bhklab/nextflow-env`
-
 ### Nextflow
 
 * **Version:** 24.04.2
@@ -221,6 +212,24 @@ nextflow run main.nf -profile standard \
   --clin_csv ICB_small_Liu_clin \
   --gene 'c("CXCL9")'
 ```
+
+### Parameter
+
+| Parameter           | Required | Applicable Modes | Description                                                                                                                                                                  | Example                                                                            |
+| ------------------- | -------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `--gene`            | **Yes**  | All              | Gene(s) of interest provided as an R vector string. Genes must be present in the expression matrix and match dataset gene identifiers.                                       | `--gene 'c("CXCL9")'`<br>`--gene 'c("CXCL9","CXCL10","STAT1","CD8A")'`             |
+| `--input_mode`      | No       | All              | Input format for analysis: `se` (default; SummarizedExperiment `.rda`), `csv` (expression + clinical CSV), `se_all` (all `.rda` files), `csv_all` (all expr/clin CSV pairs). | `--input_mode se`                                                                  |
+| `--study`           | No       | SE / SE_ALL      | Study selection: single study, comma-separated list, or `ALL`. If omitted in `se` mode, **all `.rda` files** in `--icb_data_dir` are processed.                              | `--study ICB_small_Liu`<br>`--study ICB_small_Liu,ICB_small_Hugo`<br>`--study ALL` |
+| `--expr_csv`        | **Yes**  | CSV only         | Basename of the expression CSV under `--icb_data_dir` (genes × samples; rownames = genes).                                                                                   | `--expr_csv ICB_small_Liu_expr`                                                    |
+| `--clin_csv`        | **Yes**  | CSV only         | Basename of the clinical CSV under `--icb_data_dir` (sample-level metadata).                                                                                                 | `--clin_csv ICB_small_Liu_clin`                                                    |
+| `--study_id`        | **Yes**  | CSV only         | User-defined cohort label used for output naming.                                                                                                                            | `--study_id ICB_small_Liu`                                                         |
+| `--icb_data_dir`    | No       | All              | Directory containing cohort inputs (`.rda` files or paired `*_expr.csv` / `*_clin.csv`).                                                                                     | `--icb_data_dir ./ICB_data`                                                        |
+| `--sig_data_dir`    | No       | All              | Directory containing gene-signature `.rda` files (each loads an object named `sig`).                                                                                         | `--sig_data_dir ./SIG_data`                                                        |
+| `--sig_summary_dir` | No       | All              | Directory containing `signature_information.csv` mapping signatures to scoring methods.                                                                                      | `--sig_summary_dir ./sig_summery_info`                                             |
+| `--out_dir`         | No       | All              | Output directory. Creates `studies/` (per-cohort results) and `meta/` (meta-analysis results).                                                                               | `--out_dir ./output`                                                               |
+| `--sigs`            | No       | All              | Optional subset of signatures as a comma-separated list. **If omitted → all available signatures are scored.**                                                               | `--sigs CYT_Rooney,Teff_McDermott`                                                 |
+| `--run_meta`        | No       | All              | Meta-analysis toggle: `false` disables meta-analysis; `true` runs pan-cancer and per-cancer meta-analysis (recommended when ≥2 cohorts are analyzed).                        | `--run_meta true`       
+                                                           |
 
 ## Step 5: Review and interpret outputs
 
