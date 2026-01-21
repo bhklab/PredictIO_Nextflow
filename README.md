@@ -197,7 +197,7 @@ nextflow run main.nf -profile standard \
   --input_mode se \
   --study ICB_small_Liu \
   --gene 'c("CXCL9")' \
-  --sigs CYT_Rooney,Teff_McDermott\
+  --sigs  CYT_Rooney,Teff_McDermott\
   --run_meta false
 ```
 
