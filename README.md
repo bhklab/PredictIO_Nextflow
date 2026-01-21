@@ -24,13 +24,14 @@ The main workflow (`main.nf`) consists of three sequential analysis stages:
 
 ## Step 1: Install Nextflow and Docker
 
-**Before you start (recommended environment + versions)**
+***Before you start (recommended environment + versions)**
 
- - **Linux/macOS:** supported.
- - **Windows:** run in **WSL2 (Ubuntu) + Docker Desktop** (recommended). PowerShell also works.
+- **Linux/macOS:** supported.
+- **Windows:** run in **WSL2 (Ubuntu) + Docker Desktop** (recommended). PowerShell also works.
+- **Avoid on Windows:** **Git Bash / MINGW64** (Nextflow can fail due to terminal/signal limitations).
 
- **Requirements:** Java **≥18** (tested **21/25**), Nextflow **≥24.04**, Docker Engine/Docker Desktop **≥24**.  
- **Docker image:** `bhklab/nextflow-env`
+**Requirements:** Java **≥17** (tested **21/25**), Nextflow **≥24.04**, Docker Engine/Docker Desktop **≥24**.  
+**Docker image:** `bhklab/nextflow-env`
 
 ### Nextflow
 
@@ -45,6 +46,13 @@ The main workflow (`main.nf`) consists of three sequential analysis stages:
 * **Install:** [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 * **PredictioR Docker image:** `bhklab/nextflow-env`
 * **Docker Hub:** [https://hub.docker.com/r/bhklab/nextflow-env](https://hub.docker.com/r/bhklab/nextflow-env)
+
+Sanity checks:
+```bash
+java -version
+nextflow -version
+docker version
+```
 
 Pull the image:
 
