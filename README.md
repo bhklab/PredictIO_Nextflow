@@ -4,7 +4,7 @@
 
 The PredictioR Nextflow pipeline analyzes immunotherapy response data to identify biomarkers across multiple cancer types. The workflow is implemented in Nextflow for scalable workflow management and executed using Docker to ensure reproducible and portable analyses.
 
-PredictioR-NF supports input data provided either as Bioconductor `SummarizedExperiment` (`.rda`) objects (recommended) or as paired expression and clinical CSV files. For each cohort, the pipeline evaluates gene-level and gene-signature-level associations with immunotherapy outcomes, including overall survival (OS), progression-free survival (PFS), and treatment response (R vs NR). When multiple cohorts are analyzed, results can be aggregated using pan-cancer and per-cancer meta-analysis.
+PredictioR-NF supports input data provided either as Bioconductor `SummarizedExperiment` (rda) objects (recommended) or as paired expression and clinical CSV files. For each cohort, the pipeline evaluates gene-level and gene-signature-level associations with immunotherapy outcomes, including overall survival (OS), progression-free survival (PFS), and treatment response (R vs NR). When multiple cohorts are analyzed, results can be aggregated using pan-cancer and per-cancer meta-analysis.
 
 The main workflow (`main.nf`) consists of three sequential analysis stages:
 
@@ -203,13 +203,13 @@ nextflow run main.nf -profile standard \
 
 * `--input_mode` *(optional, all modes)*  
   Input format for the analysis:  
-  *se* (default): SummarizedExperiment `.rda` input;  
+  *se* (default): SummarizedExperiment .rda input;  
   *csv*: paired expression and clinical CSV input;  
-  *se_all*: run all SummarizedExperiment `.rda` files in `--icb_data_dir`;  
+  *se_all*: run all SummarizedExperiment rda files in `--icb_data_dir`;  
   *csv_all*: run all paired expression and clinical CSV files in `--icb_data_dir`.
 
 * `--study` *(optional, se modes only)*  
-  Study selection for SummarizedExperiment inputs: a single study (e.g. *ICB_small_Liu*), multiple comma-separated studies (e.g. *ICB_small_Hugo,ICB_small_Liu*), or *ALL*. If omitted in *se* mode, all `.rda` files in `--icb_data_dir` are processed.
+  Study selection for SummarizedExperiment inputs: a single study (e.g. *ICB_small_Liu*), multiple comma-separated studies (e.g. *ICB_small_Hugo,ICB_small_Liu*), or *ALL*. If omitted in *se* mode, all rda files in `--icb_data_dir` are processed.
 
 * `--expr_csv` *(required, csv mode only)*  
   Expression basename under `--icb_data_dir`; example *ICB_small_Liu_expr* refers to *ICB_data/ICB_small_Liu_expr.csv*.
