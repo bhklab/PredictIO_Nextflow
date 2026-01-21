@@ -9,7 +9,7 @@ PredictioR-NF accepts input data as Bioconductor `SummarizedExperiment` (`.rda`,
 The main workflow (`main.nf`) consists of three sequential analysis stages:
 - **Gene-level analysis**
 - **Signature-level analysis**
-- **Meta-analysis**
+- **Meta-analysis (optional)**
 
 ## Quickstart 
 
@@ -155,7 +155,7 @@ Typical columns in `sig`:
 * `gene_name`: Name of the gene
 * `weight`: Weight assigned to each gene
 
-Signature metadata (scoring method, algorithm type) is read from: [signature_information_io.csv](https://github.com/bhklab/SignatureSets/blob/main/data-raw/signature_information_io.csv).
+Signature metadata (scoring method, algorithm type) is read from: [signature_information.csv](https://github.com/bhklab/PredictIO_Nextflow/blob/main/sig_summery_info/signature_information.csv).
 Signature definitions are sourced from: [bhklab/SignatureSets](https://github.com/bhklab/SignatureSets)
 
 Full signature metadata (50+ signatures) is available at:
@@ -322,14 +322,14 @@ This table summarizes each dataset by study and treatment type, along with cance
 
 | Dataset               | Patients [#] | Cancer type | Treatment  | Clinical endpoints | Molecular data | PMID     |
 | --------------------- | -----------: | ----------- | ---------- | ------------------ | -------------- | -------- |
-| ICB_small_Hugo        |           27 | Melanoma    | PD-1/PD-L1 | OS                 | RNA            | 26997480 |
-| ICB_small_Liu         |          121 | Melanoma    | PD-1/PD-L1 | PFS/OS             | RNA/DNA        | 31792460 |
-| ICB_small_Miao        |           33 | Kidney      | PD-1/PD-L1 | PFS/OS             | RNA/DNA        | 29301960 |
-| ICB_small_Nathanson   |           24 | Melanoma    | CTLA4      | OS                 | RNA/DNA        | 27956380 |
-| ICB_small_Padron      |           45 | Pancreas    | PD-1/PD-L1 | PFS/OS             | RNA            | 35662283 |
-| ICB_small_Riaz        |           46 | Melanoma    | PD-1/PD-L1 | OS                 | RNA/DNA        | 29033130 |
-| ICB_small_Van_Allen   |           42 | Melanoma    | CTLA4      | PFS/OS             | RNA/DNA        | 26359337 |
-| ICB_small_Mariathasan |          195 | Bladder     | PD-1/PD-L1 | OS                 | RNA/DNA        | 29443960 |
+| ICB_small_Hugo        |           27 | Melanoma    | PD-1/PD-L1 | OS                 | RNA            | [26997480](https://pubmed.ncbi.nlm.nih.gov/26997480/) |
+| ICB_small_Liu         |          121 | Melanoma    | PD-1/PD-L1 | PFS/OS             | RNA/DNA        | [31792460](https://pubmed.ncbi.nlm.nih.gov/31792460/) |
+| ICB_small_Miao        |           33 | Kidney      | PD-1/PD-L1 | PFS/OS             | RNA/DNA        | [29301960](https://pubmed.ncbi.nlm.nih.gov/29301960/) |
+| ICB_small_Nathanson   |           24 | Melanoma    | CTLA4      | OS                 | RNA/DNA        | [27956380](https://pubmed.ncbi.nlm.nih.gov/27956380/) |
+| ICB_small_Padron      |           45 | Pancreas    | PD-1/PD-L1 | PFS/OS             | RNA            | [35662283](https://pubmed.ncbi.nlm.nih.gov/35662283/) |
+| ICB_small_Riaz        |           46 | Melanoma    | PD-1/PD-L1 | OS                 | RNA/DNA        | [29033130](https://pubmed.ncbi.nlm.nih.gov/29033130/) |
+| ICB_small_Van_Allen   |           42 | Melanoma    | CTLA4      | PFS/OS             | RNA/DNA        | [26359337](https://pubmed.ncbi.nlm.nih.gov/26359337/) |
+| ICB_small_Mariathasan |          195 | Bladder     | PD-1/PD-L1 | OS                 | RNA/DNA        | [29443960](https://pubmed.ncbi.nlm.nih.gov/29443960/) |
 
 Ensure that clinical data are properly organized with all required and additional fields to maintain the integrity of the analysis.
 
