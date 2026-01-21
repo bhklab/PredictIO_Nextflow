@@ -211,7 +211,7 @@ nextflow run main.nf -profile standard \
   --expr_csv ICB_small_Liu_expr \
   --clin_csv ICB_small_Liu_clin \
   --gene 'c("CXCL9")'
-```              |
+```
 
 ## Step 5: Review and interpret outputs
 
