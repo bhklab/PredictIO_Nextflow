@@ -53,7 +53,7 @@ nextflow run main.nf -profile standard \
   --input_mode <se|csv> \
   --gene  <R_gene_vector> \
   [--study <study_id(s)|ALL>] \
-  [--sigs  <R_signature_vector>] \
+  [--sigs  <comma-separated signature names>] \
   [--expr_csv <expression_basename>] \
   [--clin_csv <clinical_basename>] \
   [--study_id <custom_study_name>] \
@@ -135,8 +135,10 @@ PARAMETER DESCRIPTIONS
 
 --sigs
   OPTIONAL. Subset of gene signatures to score, provided as an R vector string.
+  Provide signature names as a comma-separated list.
+
   Example:
-    'c("CYT_Rooney","Teff_McDermott")'
+    CYT_Rooney,Teff_McDermott
   Default:
     • If omitted → ALL available signatures are scored
 
@@ -481,14 +483,27 @@ process GeneSigScore {
 
   expr <- read.csv("${expr_file}", row.names = 1, check.names = FALSE)
 
-  # signature files
+  # signature files 
   sig_files <- list.files("${sig_dir}", pattern="\\\\.rda\$", full.names=TRUE)
 
-  # OPTIONAL: subset signatures if params.sigs is provided
+  if (length(sig_files) == 0) {
+    stop("No .rda signature files found in sig_dir: ${sig_dir}")
+  }
+
+  # subset signatures if requested
   sig_subset <- "${params.sigs}"
   if (!is.null(sig_subset) && nzchar(sig_subset) && sig_subset != "null") {
-    keep <- eval(parse(text = sig_subset))  # expects c("A","B")
+
+    keep <- trimws(unlist(strsplit(sig_subset, ",")))
+    keep <- keep[nzchar(keep)]
     sig_files <- sig_files[basename(sig_files) %in% paste0(keep, ".rda")]
+  }
+
+  # optional guard: if subset removed everything, exit cleanly
+  if (length(sig_files) == 0) {
+    message("No signature files matched --sigs; writing empty score file and exiting.")
+    write.csv(data.frame(), "${study_id}_GeneSigScore.csv")
+    quit(save="no", status=0)
   }
 
   # Compute signature scores
