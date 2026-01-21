@@ -224,7 +224,7 @@ nextflow run main.nf -profile standard \
   Signature subset as an R character vector string; example *'c("CYT_Rooney","Teff_McDermott")'*. If omitted, all signatures are scored.
 
 * `--run_meta` *(optional, all modes)*  
-  *false* disables meta-analysis (default); *true* runs pan-cancer and per-cancer meta-analysis for gene and signature results.
+  *false* disables meta-analysis (default); *true* runs pan-cancer and per-cancer meta-analysis for gene and signature results. Recommended to set *true* when analyzing two or more cohorts (e.g., `--study ALL` or multiple comma-separated studies).
 
 ## Step 5: Review and interpret outputs
 
