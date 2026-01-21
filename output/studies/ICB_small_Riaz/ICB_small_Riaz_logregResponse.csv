@@ -1,0 +1,5 @@
+"Outcome","Gene","Study","Coef","SE","N","Pval","Cancer_type","Treatment","FDR"
+"R vs NR","STAT1","ICB_small_Riaz",-1.172,0.83,14,0.158004103609247,"Melanoma","IO+combo",0.158004103609247
+"R vs NR","CXCL9","ICB_small_Riaz",-2.043,1.402,14,0.14522643566053,"Melanoma","IO+combo",0.158004103609247
+"R vs NR","CD8A","ICB_small_Riaz",-3.671,2.215,14,0.0973691029995982,"Melanoma","IO+combo",0.158004103609247
+"R vs NR","CXCL10","ICB_small_Riaz",-2.331,1.582,14,0.140729157989175,"Melanoma","IO+combo",0.158004103609247
