@@ -71,7 +71,7 @@ Example 1. SE mode: single cohort + subset of signatures
   nextflow run main.nf -profile standard \
     --study ICB_small_Liu \
     --gene 'c("CXCL9")' \
-    --sigs 'c("CYT_Rooney","Teff_McDermott")' \
+    --sigs CYT_RooneyTeff_McDermott \
     --run_meta false
 
 Example 2. SE mode: SE mode: run ALL studies + meta-analysis
