@@ -131,7 +131,7 @@ PARAMETER DESCRIPTIONS
     <icb_data_dir>/<clin_csv>.csv
 
 --study_id  (CSV mode only; REQUIRED)
-  User-defined label for the cohort (used for output naming).
+  User-defined label for the cohort (used for output naming). but if you use mode csva_all dont need to speceify this.
 
 --sigs
   OPTIONAL. Subset of gene signatures to score, provided as an R vector string.
