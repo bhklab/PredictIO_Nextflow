@@ -209,7 +209,7 @@ nextflow run main.nf -profile standard \
   *csv_all*: run all paired expression and clinical CSV files in `--icb_data_dir`.
 
 * `--study` *(optional, se modes only)*  
-  Study selection for SummarizedExperiment inputs: a single study (e.g. `ICB_small_Liu`), multiple comma-separated studies (e.g. `ICB_small_Hugo,ICB_small_Liu`), or *ALL*. If omitted in *se* mode, all `.rda` files in `--icb_data_dir` are processed.
+  Study selection for SummarizedExperiment inputs: a single study (e.g. *ICB_small_Liu*), multiple comma-separated studies (e.g. *ICB_small_Hugo,ICB_small_Liu*), or *ALL*. If omitted in *se* mode, all `.rda` files in `--icb_data_dir` are processed.
 
 * `--expr_csv` *(required, csv mode only)*  
   Expression basename under `--icb_data_dir`; example *ICB_small_Liu_expr* refers to *ICB_data/ICB_small_Liu_expr.csv*.
