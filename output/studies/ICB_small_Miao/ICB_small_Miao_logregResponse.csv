@@ -1,5 +1,0 @@
-"Outcome","Gene","Study","Coef","SE","N","Pval","Cancer_type","Treatment","FDR"
-"R vs NR","STAT1","ICB_small_Miao",0.042,0.385,28,0.912596049698316,"Kidney","PD-1/PD-L1",0.912596049698316
-"R vs NR","CXCL9","ICB_small_Miao",0.452,0.525,28,0.388476702642025,"Kidney","PD-1/PD-L1",0.912596049698316
-"R vs NR","CD8A","ICB_small_Miao",-0.101,0.431,28,0.81508683719814,"Kidney","PD-1/PD-L1",0.912596049698316
-"R vs NR","CXCL10","ICB_small_Miao",0.239,0.415,28,0.563754727711216,"Kidney","PD-1/PD-L1",0.912596049698316
