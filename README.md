@@ -222,36 +222,6 @@ nextflow run main.nf -profile standard \
   --gene 'c("CXCL9")'
 ```
 
-### Parameters
-
-* `--gene` *(required, all modes)*  
-  Gene list as an R character vector string; examples *'c("CXCL9")'* and *'c("CXCL9","CXCL10","STAT1","CD8A")'*. Genes must be present in the expression matrix and match dataset gene identifiers.
-
-* `--input_mode` *(optional, all modes)*  
-  Input format for the analysis:  
-  *se* (default): SummarizedExperiment .rda input;  
-  *csv*: paired expression and clinical CSV input;  
-  *se_all*: run all SummarizedExperiment rda files in `--icb_data_dir`;  
-  *csv_all*: run all paired expression and clinical CSV files in `--icb_data_dir`.
-
-* `--study` *(optional, se modes only)*  
-  Study selection for SummarizedExperiment inputs: a single study (e.g. *ICB_small_Liu*), multiple comma-separated studies (e.g. *ICB_small_Hugo,ICB_small_Liu*), or *ALL*. If omitted in *se* mode, all rda files in `--icb_data_dir` are processed.
-
-* `--expr_csv` *(required, csv mode only)*  
-  Expression basename under `--icb_data_dir`; example *ICB_small_Liu_expr* refers to *ICB_data/ICB_small_Liu_expr.csv*.
-
-* `--clin_csv` *(required, csv mode only)*  
-  Clinical basename under `--icb_data_dir`; example *ICB_small_Liu_clin* refers to *ICB_data/ICB_small_Liu_clin.csv*.
-
-* `--study_id` *(required, csv mode only)*  
-  Cohort label used for output naming; example *ICB_small_Liu*.
-
-* `--sigs` *(optional, all modes)*  
-  Signature subset as an R character vector string; example *'c("CYT_Rooney","Teff_McDermott")'*. If omitted, all signatures are scored.
-
-* `--run_meta` *(optional, all modes)*  
-  *false* disables meta-analysis (default); *true* runs pan-cancer and per-cancer meta-analysis for gene and signature results. Recommended to set *true* when analyzing two or more cohorts (e.g., `--study ALL` or multiple comma-separated studies).
-
 ## Step 5: Review and interpret outputs
 
 All outputs are written to `--out_dir` (default: `./output`).
@@ -295,28 +265,6 @@ output/
 * **Associated publication:** [Leveraging big data of immune checkpoint blockade response identifies novel potential targets](https://pubmed.ncbi.nlm.nih.gov/36055464/)
 
 
-## Data Directory Configuration
-
-### Gene-level Analysis
-
-* **Input Data Directory:** `params.gene_data_dir = './ICB_data'`
-* **Output Data Directory:** `params.out_dir = './output/studies'` (results stored stratified by study ID)
-
-### Signature-level Analysis
-
-* **Input Data Directory:** `params.signature_data_dir = './SIG_data'`
-* **Output Data Directory:** `params.out_dir = './output/studies'` (results stored stratified by study ID)
-
-### Meta-analysis
-
-* The meta-analysis step uses results from both gene-level and signature-level analyses.
-* **Input directories:**
-
-  * Gene level: `./output/studies/<studyid>` OS/PFS/response CSV files
-  * Signature level: `./output/studies/<studyid>` OS/PFS/response CSV files
-* **Output Data Directory:** `params.out_dir = './output/meta'`
-
-
 ## Input Data Specifications
 
 ### ICB Data Information
@@ -333,51 +281,6 @@ This table summarizes each dataset by study and treatment type, along with cance
 | ICB_small_Riaz        |           46 | Melanoma    | PD-1/PD-L1 | OS                 | RNA/DNA        | [29033130](https://pubmed.ncbi.nlm.nih.gov/29033130/) |
 | ICB_small_Van_Allen   |           42 | Melanoma    | CTLA4      | PFS/OS             | RNA/DNA        | [26359337](https://pubmed.ncbi.nlm.nih.gov/26359337/) |
 | ICB_small_Mariathasan |          195 | Bladder     | PD-1/PD-L1 | OS                 | RNA/DNA        | [29443960](https://pubmed.ncbi.nlm.nih.gov/29443960/) |
-
-Ensure that clinical data are properly organized with all required and additional fields to maintain the integrity of the analysis.
-
-### Required Columns
-
-* `patientid`: Unique identifier for patients
-* `treatmentid`: Details of the treatment regimen
-* `response`: Patient response to treatment (Responder `R`, Non-responder `NR`)
-* `tissueid`: Standardized cancer type
-* `survival_time_pfs`: Time to progression-free survival (e.g., 2.6 months)
-* `survival_time_os`: Time to overall survival
-* `survival_unit`: Measurement units for survival times (typically months)
-* `event_occurred_pfs`: Binary indicator of event occurrence during PFS (1/0)
-* `event_occurred_os`: Binary indicator of event occurrence during OS (1/0)
-
-### Additional Recommended Fields
-
-* Sex
-* Age
-* Histology (`histo`)
-* Cancer stage
-* DNA and RNA metadata
-
-## Signature Information
-
-This table summarizes each signature name by study and PMID references, the method for computing the signature score, and the corresponding score function.
-
-| Signature          | DNA/RNA | RNA Type          | Method | Cancer Type      | Score Function | PMID     |
-| ------------------ | ------: | ----------------- | ------ | ---------------- | -------------- | -------- |
-| ADO_Sidders        |     RNA | Count RNA-seq/TPM | GSVA   | Multiple         | geneSigGSVA    | [31953314](https://pubmed.ncbi.nlm.nih.gov/31953314/) |
-| APM_Thompson       |     RNA | log CPM           | GSVA   | Lung, melanoma   | geneSigGSVA    | [33028693](https://pubmed.ncbi.nlm.nih.gov/33028693/) |
-| APM_Wang           |     RNA | Microarray        | GSVA   | Multiple         | geneSigGSVA    | [31767055](https://pubmed.ncbi.nlm.nih.gov/31767055/) |
-| Bcell_Budczies     |     RNA | Microarray        | GSVA   | Lung             | geneSigGSVA    | [33520406](https://pubmed.ncbi.nlm.nih.gov/33520406/) |
-| Bcell_Helmink      |     RNA | log FPKM          | GSVA   | Melanoma, kidney | geneSigGSVA    | [31942075](https://pubmed.ncbi.nlm.nih.gov/31942075/) |
-| Blood_Friedlander  |     RNA | Microarray        | GSVA   | Melanoma         | geneSigGSVA    | [28807052](https://pubmed.ncbi.nlm.nih.gov/28807052/) |
-| C-ECM_Chakravarthy |     RNA | Normalized counts | ssGSEA | Multiple         | geneSigssGSEA  | [30410077](https://pubmed.ncbi.nlm.nih.gov/30410077/) |
-
-### Required Columns
-
-* `signature`: Name of the signature (must match names in `./SIG_data`)
-* `method`: Method used for signature score calculation
-* `score function`: Function used in the R script for scoring
-
-For detailed information on the signatures used in the pipeline, refer to the signature information CSV (50+ signatures) available at:
-[https://github.com/bhklab/SignatureSets/tree/main/data-raw](https://github.com/bhklab/SignatureSets/tree/main/data-raw)
 
 
 ## Additional Notes
