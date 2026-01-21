@@ -215,7 +215,7 @@ nextflow run main.nf -profile standard \
 
 ### Parameter
 
-| Parameter           | Required | Applicable Modes | Description                                                                                                                                                                  | | Parameter           | Required | Applicable Modes | Description                                                                                                                                                                                                                 | Example                                                                            |
+| Parameter           | Required | Applicable Modes | Description                                                                                                                                                                                                                 | Example                                                                            |
 | ------------------- | -------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | `--gene`            | **Yes**  | All              | Gene list as an R vector string. Only genes present in the expression matrix are analyzed (others are skipped).                                                                                                             | `--gene 'c("CXCL9")'`<br>`--gene 'c("CXCL9","CXCL10","STAT1","CD8A")'`             |
 | `--input_mode`      | No       | All              | Input mode: `se` (default; `.rda` SummarizedExperiment), `csv` (single expr/clin CSV pair), `se_all` (all `.rda` in `--icb_data_dir`), `csv_all` (all `*_expr.csv` / `*_clin.csv` in `--icb_data_dir`).                     | `--input_mode se`                                                                  |
@@ -229,7 +229,6 @@ nextflow run main.nf -profile standard \
 | `--out_dir`         | No       | All              | Output directory. Writes per-cohort results to `studies/` and meta-analysis results (if enabled) to `meta/`.                                                                                                                | `--out_dir ./output`                                                               |
 | `--sigs`            | No       | All              | Signature filter as a comma-separated list of signature names (without `.rda`). **If omitted/empty, all signatures in `--sig_data_dir` are scored.**                                                                        | `--sigs CYT_Rooney,Teff_McDermott`                                                 |
 | `--run_meta`        | No       | All              | Meta-analysis toggle: `true` runs pan-cancer and per-cancer meta-analysis across cohorts; `false` runs per-cohort analysis only.                                                                                            | `--run_meta true`                                                                  |
-
 
 ## Step 5: Review and interpret outputs
 
