@@ -215,21 +215,19 @@ nextflow run main.nf -profile standard \
 
 ### Parameter
 
-| Parameter           | Required | Modes        | Description                                                              | Example                                |
-| ------------------- | -------- | ------------ | ------------------------------------------------------------------------ | -------------------------------------- |
-| `--gene`            | **Yes**  | All          | Gene list as an R vector string.                                         | `--gene 'c("CXCL9")'`                  |
-| `--input_mode`      | No       | All          | `se` (default), `csv`, `se_all`, `csv_all`.                              | `--input_mode se`                      |
-| `--study`           | No       | SE / CSV_ALL | Study ID(s) or `ALL`.                                                    | `--study ALL`                          |
-| `--expr_csv`        | **Yes**  | CSV          | Expression CSV basename (under `--icb_data_dir`).                        | `--expr_csv ICB_small_Liu_expr`        |
-| `--clin_csv`        | **Yes**  | CSV          | Clinical CSV basename (under `--icb_data_dir`).                          | `--clin_csv ICB_small_Liu_clin`        |
-| `--study_id`        | **Yes**  | CSV          | Cohort label used for output naming.                                     | `--study_id ICB_small_Liu`             |
-| `--icb_data_dir`    | No       | All          | Input directory containing cohort data.                                  | `--icb_data_dir ./ICB_data`            |
-| `--sig_data_dir`    | No       | All          | Directory containing signature `.rda` files.                             | `--sig_data_dir ./SIG_data`            |
-| `--sig_summary_dir` | No       | All          | Directory with `signature_information.csv`.                              | `--sig_summary_dir ./sig_summery_info` |
-| `--out_dir`         | No       | All          | Output directory (`studies/`, `meta/`).                                  | `--out_dir ./output`                   |
-| `--sigs`            | No       | All          | Signature subset (comma-separated); omit = all.                          | `--sigs CYT_Rooney,Teff_McDermott`     |
-| `--run_meta`        | No       | All          | Meta-analysis toggle (`true`/`false`) (recommended when ≥2 cohorts). | `--run_meta true`                      |
-                                                          |
+| Parameter        | Req | Modes        | Description                                 | Example                            |
+| ---------------- | --- | ------------ | ------------------------------------------- | ---------------------------------- |
+| `--gene`         | Yes | All          | Gene list as an R vector string.            | `--gene 'c("CXCL9")'`              |
+| `--input_mode`   | No  | All          | `se` (default), `csv`, `se_all`, `csv_all`. | `--input_mode se`                  |
+| `--study`        | No  | SE / CSV_ALL | Study ID(s) or `ALL` (ignored in `csv`).    | `--study ALL`                      |
+| `--expr_csv`     | Yes | CSV          | Expression CSV basename.                    | `--expr_csv ICB_small_Liu_expr`    |
+| `--clin_csv`     | Yes | CSV          | Clinical CSV basename.                      | `--clin_csv ICB_small_Liu_clin`    |
+| `--study_id`     | Yes | CSV          | Cohort label for outputs.                   | `--study_id ICB_small_Liu`         |
+| `--icb_data_dir` | No  | All          | Input cohort directory.                     | `--icb_data_dir ./ICB_data`        |
+| `--sig_data_dir` | No  | All          | Signature `.rda` directory.                 | `--sig_data_dir ./SIG_data`        |
+| `--out_dir`      | No  | All          | Output directory.                           | `--out_dir ./output`               |
+| `--sigs`         | No  | All          | Signature subset; omit = all.               | `--sigs CYT_Rooney,Teff_McDermott` |
+| `--run_meta`     | No  | All          | Meta-analysis (`true`/`false`, ≥2 cohorts). | `--run_meta true`                  |
 
 ## Step 5: Review and interpret outputs
 
