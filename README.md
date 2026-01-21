@@ -2,15 +2,14 @@
 
 ## Overview
 
-The PredictioR Nextflow pipeline analyzes immunotherapy response data to identify biomarkers across multiple cancer types. The workflow is implemented in Nextflow for scalable workflow management and executed using Docker to ensure reproducible and portable analyses.
+The PredictioR Nextflow (PredictioR-NF) pipeline is a scalable, end-to-end workflow for immunotherapy biomarker discovery across multiple cancer cohorts. It is implemented in Nextflow and runs in Docker for reproducible and portable analyses.
 
-PredictioR-NF supports input data provided either as Bioconductor `SummarizedExperiment` (`.rda`) objects (recommended) or as paired expression and clinical CSV files. For each cohort, the pipeline evaluates gene-level and gene-signature-level associations with immunotherapy outcomes, including overall survival (OS), progression-free survival (PFS), and treatment response (R vs NR). When multiple cohorts are analyzed, results can be aggregated using pan-cancer and per-cancer meta-analysis.
+PredictioR-NF accepts input data as Bioconductor `SummarizedExperiment` (`.rda`, recommended) or paired expression and clinical CSV files. For each cohort, it performs gene-level and gene-signature association testing, and can optionally aggregate results across cohorts using pan-cancer and cancer-specific meta-analysis.
 
 The main workflow (`main.nf`) consists of three sequential analysis stages:
-
-* **Gene-level analysis**
-* **Signature-level analysis**
-* **Meta-analysis**
+- **Gene-level analysis**
+- **Signature-level analysis**
+- **Meta-analysis (optional)**
 
 ## Quickstart 
 
@@ -23,6 +22,15 @@ The main workflow (`main.nf`) consists of three sequential analysis stages:
 * **Step 7:** [Reference resources](#step-7-reference-resources)
 
 ## Step 1: Install Nextflow and Docker
+
+**Before you start (recommended environment + versions)**
+
+- **Linux/macOS:** supported.
+- **Windows:** run in **WSL2 (Ubuntu) + Docker Desktop** (recommended). PowerShell also works.
+- **Avoid on Windows:** **Git Bash / MINGW64** (Nextflow can fail due to terminal/signal limitations).
+
+**Requirements:** Java **≥17** (tested **21/25**), Nextflow **≥24.04** (tested with newer versions), Docker Engine/Docker Desktop **≥24**.  
+**Docker image:** `bhklab/nextflow-env`
 
 ### Nextflow
 
@@ -37,6 +45,13 @@ The main workflow (`main.nf`) consists of three sequential analysis stages:
 * **Install:** [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 * **PredictioR Docker image:** `bhklab/nextflow-env`
 * **Docker Hub:** [https://hub.docker.com/r/bhklab/nextflow-env](https://hub.docker.com/r/bhklab/nextflow-env)
+
+Sanity checks:
+```bash
+java -version
+nextflow -version
+docker version
+```
 
 Pull the image:
 
@@ -62,6 +77,10 @@ Before running the pipeline, the project directory should contain:
 
 Each cohort is expected to represent a single cancer type and a single treatment category.
 
+**FAIR data note:** PredictioR-NF assumes standardized, well-annotated inputs to enable reproducible analyses and reuse across cohorts. We recommend `SummarizedExperiment` to keep molecular assays, sample metadata, and feature annotations together, with consistent sample IDs and harmonized clinical endpoint variables.
+
+**Curation standards:** Clinical variables and genomic metadata were curated and harmonized using **mCODE** concepts where applicable, and aligned with **ICGC/ICGC-ARGO** conventions (e.g., consistent variable naming, controlled vocabularies, and cohort metadata structure).
+
 ### 3.1 Gene-level input (`ICB_data/`)
 
 #### 3.1.1 SummarizedExperiment mode (default; recommended)
@@ -79,10 +98,10 @@ Example input files:
 * `ICB_small_Mariathasan.rda`
 
 Example datasets directory:
-[https://github.com/bhklab/PredictioR/tree/main/data](https://github.com/bhklab/PredictioR/tree/main/data)
+[bhklab/PredictioR/tree/main/data](https://github.com/bhklab/PredictioR/tree/main/data)
 
 `SummarizedExperiment` documentation:
-[https://bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/SummarizedExperiment.html](https://bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/SummarizedExperiment.html)
+[SummarizedExperiment.html](https://bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/SummarizedExperiment.html)
 
 #### 3.1.2 CSV mode
 
@@ -114,6 +133,10 @@ Expression column names **must exactly match** clinical sample identifiers (orde
 | `event_occurred_os`  | OS event indicator (1 = event, 0 = censored)   |
 | `event_occurred_pfs` | PFS event indicator (1 = event, 0 = censored)  |
 
+**Endpoints and definitions**
+- `survival_time_os` and `survival_time_pfs` are in **months**.
+- `response` is encoded as **R** (responder) vs **NR** (non-responder), following the [PMID: 36055464](https://pubmed.ncbi.nlm.nih.gov/36055464/).
+
 Additional recommended columns include `patientid`, `tissueid`, `survival_unit`, `sex`, `age`, `histology`, and `stage`.
 
 ### 3.2 Signature-level input (`SIG_data/`)
@@ -132,11 +155,14 @@ Typical columns in `sig`:
 * `gene_name`: Name of the gene
 * `weight`: Weight assigned to each gene
 
-Signature metadata (scoring method, algorithm type) is read from: `sig_summery_info/signature_information.csv`.
-Signature definitions are sourced from: [https://github.com/bhklab/SignatureSets](https://github.com/bhklab/SignatureSets)
+Signature metadata (scoring method, algorithm type) is read from: [signature_information.csv](https://github.com/bhklab/PredictIO_Nextflow/blob/main/sig_summery_info/signature_information.csv).
+
+Signature definitions are sourced from: [bhklab/SignatureSets](https://github.com/bhklab/SignatureSets)
 
 Full signature metadata (50+ signatures) is available at:
-[https://github.com/bhklab/SignatureSets/tree/main/data-raw](https://github.com/bhklab/SignatureSets/tree/main/data-raw)
+[bhklab/SignatureSets/tree/main/data-raw](https://github.com/bhklab/SignatureSets/tree/main/data-raw)
+
+**Curation note:** All signatures are **fully curated and standardized**, with gene identifiers, weights, and scoring methods harmonized across studies to enable reproducible and comparable signature scoring.
 
 Please follow the same format for consistency.
 
@@ -164,7 +190,7 @@ nextflow run main.nf -profile standard \
 
 ### Examples
 
-**Example 1: SE mode, single cohort, subset of signatures**
+**Example 1: SE mode, single cohort, subset of signatures**  
 
 ```bash
 nextflow run main.nf -profile standard \
@@ -195,32 +221,6 @@ nextflow run main.nf -profile standard \
   --clin_csv ICB_small_Liu_clin \
   --gene 'c("CXCL9")'
 ```
-
-### Parameter
-
-* `--gene` *(required, all modes)*  
-  gene list as an R vector string; examples *'c("CXCL9")'* and *'c("CXCL9","CXCL10","STAT1","CD8A")'*. Genes must be present in the expression matrix and match dataset gene identifiers.
-
-* `--input_mode` *(optional, all modes)*  
-  *se* default SummarizedExperiment .rda input; *csv* expression and clinical CSV input; *se_all* run all SummarizedExperiment .rda files in *--icb_data_dir*; *csv_all* run all paired expression and clinical CSV files in *--icb_data_dir*.
-
-* `--study` *(optional, se modes only)*  
-  single study, comma separated studies, or *ALL*. If omitted in *se* mode all .rda files in *--icb_data_dir* are processed.
-
-* `--expr_csv` *(required, csv mode only)*  
-  expression basename under *--icb_data_dir*; example *ICB_small_Liu_expr* refers to *ICB_data/ICB_small_Liu_expr.csv*.
-
-* `--clin_csv` *(required, csv mode only)*  
-  clinical basename under *--icb_data_dir*; example *ICB_small_Liu_clin* refers to *ICB_data/ICB_small_Liu_clin.csv*.
-
-* `--study_id` *(required, csv mode only)*  
-  cohort label used for output naming; example *ICB_small_Liu*.
-
-* `--sigs` *(optional, all modes)*  
-  signature subset as an R vector string; example *'c("CYT_Rooney","Teff_McDermott")'*. If omitted all signatures are scored.
-
-* `--run_meta` *(optional, all modes)*  
-  *false* disables meta analysis; *true* runs pan cancer and per cancer meta analysis for gene and signature results.
 
 ## Step 5: Review and interpret outputs
 
@@ -262,29 +262,7 @@ output/
 ## Step 7: Reference Resources
 
 * **GitHub repository:** [https://github.com/bhklab/PredictioR](https://github.com/bhklab/PredictioR)
-* **Associated publication:** [https://pubmed.ncbi.nlm.nih.gov/36055464/](https://pubmed.ncbi.nlm.nih.gov/36055464/)
-
-
-## Data Directory Configuration
-
-### Gene-level Analysis
-
-* **Input Data Directory:** `params.gene_data_dir = './ICB_data'`
-* **Output Data Directory:** `params.out_dir = './output/studies'` (results stored stratified by study ID)
-
-### Signature-level Analysis
-
-* **Input Data Directory:** `params.signature_data_dir = './SIG_data'`
-* **Output Data Directory:** `params.out_dir = './output/studies'` (results stored stratified by study ID)
-
-### Meta-analysis
-
-* The meta-analysis step uses results from both gene-level and signature-level analyses.
-* **Input directories:**
-
-  * Gene level: `./output/studies/<studyid>` OS/PFS/response CSV files
-  * Signature level: `./output/studies/<studyid>` OS/PFS/response CSV files
-* **Output Data Directory:** `params.out_dir = './output/meta'`
+* **Associated publication:** [Leveraging big data of immune checkpoint blockade response identifies novel potential targets](https://pubmed.ncbi.nlm.nih.gov/36055464/)
 
 
 ## Input Data Specifications
@@ -295,61 +273,14 @@ This table summarizes each dataset by study and treatment type, along with cance
 
 | Dataset               | Patients [#] | Cancer type | Treatment  | Clinical endpoints | Molecular data | PMID     |
 | --------------------- | -----------: | ----------- | ---------- | ------------------ | -------------- | -------- |
-| ICB_small_Hugo        |           27 | Melanoma    | PD-1/PD-L1 | OS                 | RNA            | 26997480 |
-| ICB_small_Liu         |          121 | Melanoma    | PD-1/PD-L1 | PFS/OS             | RNA/DNA        | 31792460 |
-| ICB_small_Miao        |           33 | Kidney      | PD-1/PD-L1 | PFS/OS             | RNA/DNA        | 29301960 |
-| ICB_small_Nathanson   |           24 | Melanoma    | CTLA4      | OS                 | RNA/DNA        | 27956380 |
-| ICB_small_Padron      |           45 | Pancreas    | PD-1/PD-L1 | PFS/OS             | RNA            | 35662283 |
-| ICB_small_Riaz        |           46 | Melanoma    | PD-1/PD-L1 | OS                 | RNA/DNA        | 29033130 |
-| ICB_small_Van_Allen   |           42 | Melanoma    | CTLA4      | PFS/OS             | RNA/DNA        | 26359337 |
-| ICB_small_Mariathasan |          195 | Bladder     | PD-1/PD-L1 | OS                 | RNA/DNA        | 29443960 |
-
-Ensure that clinical data are properly organized with all required and additional fields to maintain the integrity of the analysis.
-
-### Required Columns
-
-* `patientid`: Unique identifier for patients
-* `treatmentid`: Details of the treatment regimen
-* `response`: Patient response to treatment (Responder `R`, Non-responder `NR`)
-* `tissueid`: Standardized cancer type
-* `survival_time_pfs`: Time to progression-free survival (e.g., 2.6 months)
-* `survival_time_os`: Time to overall survival
-* `survival_unit`: Measurement units for survival times (typically months)
-* `event_occurred_pfs`: Binary indicator of event occurrence during PFS (1/0)
-* `event_occurred_os`: Binary indicator of event occurrence during OS (1/0)
-
-### Additional Recommended Fields
-
-* Sex
-* Age
-* Histology (`histo`)
-* Cancer stage
-* DNA and RNA metadata
-
-## Signature Information
-
-This table summarizes each signature name by study and PMID references, the method for computing the signature score, and the corresponding score function.
-
-| Signature          | DNA/RNA | RNA Type          | Method | Cancer Type      | Score Function | PMID     |
-| ------------------ | ------: | ----------------- | ------ | ---------------- | -------------- | -------- |
-| ADO_Sidders        |     RNA | Count RNA-seq/TPM | GSVA   | Multiple         | geneSigGSVA    | 31953314 |
-| APM_Thompson       |     RNA | log CPM           | GSVA   | Lung, melanoma   | geneSigGSVA    | 33028693 |
-| APM_Wang           |     RNA | Microarray        | GSVA   | Multiple         | geneSigGSVA    | 31767055 |
-| Bcell_Budczies     |     RNA | Microarray        | GSVA   | Lung             | geneSigGSVA    | 33520406 |
-| Bcell_Helmink      |     RNA | log FPKM          | GSVA   | Melanoma, kidney | geneSigGSVA    | 31942075 |
-| Blood_Friedlander  |     RNA | Microarray        | GSVA   | Melanoma         | geneSigGSVA    | 28807052 |
-| C-ECM_Chakravarthy |     RNA | Normalized counts | ssGSEA | Multiple         | geneSigssGSEA  | 30410077 |
-| CCL5-CXCL9_Dangaj  |     RNA |                   | GSVA   | Multiple         | geneSigGSVA    | 31185212 |
-| CD39-CD8Tcell_Chow |     RNA | RNA-seq count     | GSVA   | Lung             | geneSigGSVA    | 36574773 |
-
-### Required Columns
-
-* `signature`: Name of the signature (must match names in `./SIG_data`)
-* `method`: Method used for signature score calculation
-* `score function`: Function used in the R script for scoring
-
-For detailed information on the signatures used in the pipeline, refer to the signature information CSV (50+ signatures) available at:
-[https://github.com/bhklab/SignatureSets/tree/main/data-raw](https://github.com/bhklab/SignatureSets/tree/main/data-raw)
+| ICB_small_Hugo        |           27 | Melanoma    | PD-1/PD-L1 | OS                 | RNA            | [26997480](https://pubmed.ncbi.nlm.nih.gov/26997480/) |
+| ICB_small_Liu         |          121 | Melanoma    | PD-1/PD-L1 | PFS/OS             | RNA/DNA        | [31792460](https://pubmed.ncbi.nlm.nih.gov/31792460/) |
+| ICB_small_Miao        |           33 | Kidney      | PD-1/PD-L1 | PFS/OS             | RNA/DNA        | [29301960](https://pubmed.ncbi.nlm.nih.gov/29301960/) |
+| ICB_small_Nathanson   |           24 | Melanoma    | CTLA4      | OS                 | RNA/DNA        | [27956380](https://pubmed.ncbi.nlm.nih.gov/27956380/) |
+| ICB_small_Padron      |           45 | Pancreas    | PD-1/PD-L1 | PFS/OS             | RNA            | [35662283](https://pubmed.ncbi.nlm.nih.gov/35662283/) |
+| ICB_small_Riaz        |           46 | Melanoma    | PD-1/PD-L1 | OS                 | RNA/DNA        | [29033130](https://pubmed.ncbi.nlm.nih.gov/29033130/) |
+| ICB_small_Van_Allen   |           42 | Melanoma    | CTLA4      | PFS/OS             | RNA/DNA        | [26359337](https://pubmed.ncbi.nlm.nih.gov/26359337/) |
+| ICB_small_Mariathasan |          195 | Bladder     | PD-1/PD-L1 | OS                 | RNA/DNA        | [29443960](https://pubmed.ncbi.nlm.nih.gov/29443960/) |
 
 
 ## Additional Notes
