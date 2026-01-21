@@ -95,10 +95,10 @@ Example input files:
 * `ICB_small_Mariathasan.rda`
 
 Example datasets directory:
-[https://github.com/bhklab/PredictioR/tree/main/data](https://github.com/bhklab/PredictioR/tree/main/data)
+[bhklab/PredictioR/tree/main/data](https://github.com/bhklab/PredictioR/tree/main/data)
 
 `SummarizedExperiment` documentation:
-[https://bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/SummarizedExperiment.html](https://bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/SummarizedExperiment.html)
+[SummarizedExperiment.html](https://bioconductor.org/packages/devel/bioc/vignettes/SummarizedExperiment/inst/doc/SummarizedExperiment.html)
 
 #### 3.1.2 CSV mode
 
