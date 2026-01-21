@@ -77,9 +77,9 @@ Before running the pipeline, the project directory should contain:
 
 Each cohort is expected to represent a single cancer type and a single treatment category.
 
-**FAIR data note:**PredictioR-NF assumes standardized, well-annotated inputs to enable reproducible analyses and reuse across cohorts. We recommend `SummarizedExperiment` to keep molecular assays, sample metadata, and feature annotations together, with consistent sample IDs and harmonized clinical endpoint variables.
+**FAIR data note:** PredictioR-NF assumes standardized, well-annotated inputs to enable reproducible analyses and reuse across cohorts. We recommend `SummarizedExperiment` to keep molecular assays, sample metadata, and feature annotations together, with consistent sample IDs and harmonized clinical endpoint variables.
 
-**Curation standards:** Cohort clinical variables and genomic metadata were curated and harmonized using **mCODE** concepts where applicable, and aligned with **ICGC/ICGC-ARGO** conventions for cancer cohort data representation.
+**Curation standards:** Clinical variables and genomic metadata were curated and harmonized using **mCODE** concepts where applicable, and aligned with **ICGC/ICGC-ARGO** conventions (e.g., consistent variable naming, controlled vocabularies, and cohort metadata structure).
 
 ### 3.1 Gene-level input (`ICB_data/`)
 
@@ -134,8 +134,8 @@ Expression column names **must exactly match** clinical sample identifiers (orde
 | `event_occurred_pfs` | PFS event indicator (1 = event, 0 = censored)  |
 
 **Endpoints and definitions**
- - `survival_time_os` and `survival_time_pfs` are in **months**.
- - `response` is encoded as **R** (responder) vs **NR** (non-responder), following the original cohort publication [PMID: 36055464](https://pubmed.ncbi.nlm.nih.gov/36055464/).
+- `survival_time_os` and `survival_time_pfs` are in **months**.
+- `response` is encoded as **R** (responder) vs **NR** (non-responder), following the [PMID: 36055464](https://pubmed.ncbi.nlm.nih.gov/36055464/).
 
 Additional recommended columns include `patientid`, `tissueid`, `survival_unit`, `sex`, `age`, `histology`, and `stage`.
 
@@ -156,10 +156,13 @@ Typical columns in `sig`:
 * `weight`: Weight assigned to each gene
 
 Signature metadata (scoring method, algorithm type) is read from: [signature_information.csv](https://github.com/bhklab/PredictIO_Nextflow/blob/main/sig_summery_info/signature_information.csv).
+
 Signature definitions are sourced from: [bhklab/SignatureSets](https://github.com/bhklab/SignatureSets)
 
 Full signature metadata (50+ signatures) is available at:
 [bhklab/SignatureSets/tree/main/data-raw](https://github.com/bhklab/SignatureSets/tree/main/data-raw)
+
+**Curation note:** All signatures are **fully curated and standardized**, with gene identifiers, weights, and scoring methods harmonized across studies to enable reproducible and comparable signature scoring.
 
 Please follow the same format for consistency.
 
@@ -187,7 +190,7 @@ nextflow run main.nf -profile standard \
 
 ### Examples
 
-**Example 1: SE mode, single cohort, subset of signatures**
+**Example 1: SE mode, single cohort, subset of signatures**  
 
 ```bash
 nextflow run main.nf -profile standard \
@@ -359,15 +362,13 @@ This table summarizes each signature name by study and PMID references, the meth
 
 | Signature          | DNA/RNA | RNA Type          | Method | Cancer Type      | Score Function | PMID     |
 | ------------------ | ------: | ----------------- | ------ | ---------------- | -------------- | -------- |
-| ADO_Sidders        |     RNA | Count RNA-seq/TPM | GSVA   | Multiple         | geneSigGSVA    | 31953314 |
-| APM_Thompson       |     RNA | log CPM           | GSVA   | Lung, melanoma   | geneSigGSVA    | 33028693 |
-| APM_Wang           |     RNA | Microarray        | GSVA   | Multiple         | geneSigGSVA    | 31767055 |
-| Bcell_Budczies     |     RNA | Microarray        | GSVA   | Lung             | geneSigGSVA    | 33520406 |
-| Bcell_Helmink      |     RNA | log FPKM          | GSVA   | Melanoma, kidney | geneSigGSVA    | 31942075 |
-| Blood_Friedlander  |     RNA | Microarray        | GSVA   | Melanoma         | geneSigGSVA    | 28807052 |
-| C-ECM_Chakravarthy |     RNA | Normalized counts | ssGSEA | Multiple         | geneSigssGSEA  | 30410077 |
-| CCL5-CXCL9_Dangaj  |     RNA |                   | GSVA   | Multiple         | geneSigGSVA    | 31185212 |
-| CD39-CD8Tcell_Chow |     RNA | RNA-seq count     | GSVA   | Lung             | geneSigGSVA    | 36574773 |
+| ADO_Sidders        |     RNA | Count RNA-seq/TPM | GSVA   | Multiple         | geneSigGSVA    | [31953314](https://pubmed.ncbi.nlm.nih.gov/31953314/) |
+| APM_Thompson       |     RNA | log CPM           | GSVA   | Lung, melanoma   | geneSigGSVA    | [33028693](https://pubmed.ncbi.nlm.nih.gov/33028693/) |
+| APM_Wang           |     RNA | Microarray        | GSVA   | Multiple         | geneSigGSVA    | [31767055](https://pubmed.ncbi.nlm.nih.gov/31767055/) |
+| Bcell_Budczies     |     RNA | Microarray        | GSVA   | Lung             | geneSigGSVA    | [33520406](https://pubmed.ncbi.nlm.nih.gov/33520406/) |
+| Bcell_Helmink      |     RNA | log FPKM          | GSVA   | Melanoma, kidney | geneSigGSVA    | [31942075](https://pubmed.ncbi.nlm.nih.gov/31942075/) |
+| Blood_Friedlander  |     RNA | Microarray        | GSVA   | Melanoma         | geneSigGSVA    | [28807052](https://pubmed.ncbi.nlm.nih.gov/28807052/) |
+| C-ECM_Chakravarthy |     RNA | Normalized counts | ssGSEA | Multiple         | geneSigssGSEA  | [30410077](https://pubmed.ncbi.nlm.nih.gov/30410077/) |
 
 ### Required Columns
 
