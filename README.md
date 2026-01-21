@@ -2,9 +2,9 @@
 
 ## Overview
 
-The PredictioR Nextflow pipeline analyzes immunotherapy response data to identify biomarkers across multiple cancer types. The workflow is implemented in Nextflow for scalable workflow management and executed using Docker to ensure reproducible and portable analyses.
+The PredictioR Nextflow (PredictioR-NF) pipeline is a scalable, end-to-end workflow for immunotherapy biomarker discovery across multiple cancer cohorts. The workflow is implemented in Nextflow and runs in Docker for reproducible and portable analyses.
 
-PredictioR-NF supports input data provided either as Bioconductor `SummarizedExperiment` (rda) objects (recommended) or as paired expression and clinical CSV files. For each cohort, the pipeline evaluates gene-level and gene-signature-level associations with immunotherapy outcomes, including overall survival (OS), progression-free survival (PFS), and treatment response (R vs NR). When multiple cohorts are analyzed, results can be aggregated using pan-cancer and per-cancer meta-analysis.
+PredictioR-NF accepts input data as Bioconductor `SummarizedExperiment` (.rda, recommended) or paired expression and clinical CSV files. For each cohort, it evaluates gene-level and gene-signature associations with immunotherapy outcomes, including overall survival (OS), progression-free survival (PFS), and treatment response (R vs NR). When multiple cohorts are provided, results are aggregated using pan-cancer and cancer-specific meta-analysis.
 
 The main workflow (`main.nf`) consists of three sequential analysis stages:
 
