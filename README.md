@@ -227,7 +227,6 @@ output/
 * **Per-study outputs:** organized by study ID include extracted inputs, gene-level association results, signature scores, and signature-level association results.
 * **Meta-analysis outputs:** include pan-cancer and per-cancer summary tables.
 
-
 ## Step 6: Analyses performed
 
 ### Gene-level analysis
