@@ -191,18 +191,25 @@ nextflow run main.nf -profile standard \
 
 ### Examples
 
-**Example 1:  SE mode, single cohort, gene + subset of signatures**  
+**Example 1: SE mode (default), single cohort, gene-only analysis**  
 
 ```bash
 nextflow run main.nf -profile standard \
   --input_mode se \
   --study ICB_small_Liu \
-  --gene 'c("CXCL9")' \
-  --sigs CYT_Rooney,Teff_McDermott \
-  --run_meta false
+  --gene 'c("CXCL9","CXCL10","STAT1","CD8A")'
 ```
 
-**Example 2: SE mode, ALL cohorts, ALL signatures, meta-analysis**
+**Example 2:  SE mode (default), multi-cohort, signatures-only analysis**
+
+```
+nextflow run main.nf -profile standard \
+  --input_mode se \
+  --study ICB_small_Liu,ICB_small_Hugo,ICB_small_Liu_clin \
+  --sigs CYT_Rooney,Teff_McDermott
+```
+
+**Example 3: SE mode (default), ALL cohorts, gene + ALL signatures, meta-analysis**
 
 ```bash
 nextflow run main.nf -profile standard \
@@ -213,7 +220,7 @@ nextflow run main.nf -profile standard \
   --run_meta true
 ```
 
-**Example 3: CSV mode, single cohort, gene-only**
+**Example 4: CSV mode, single cohort, gene-only analysis**
 
 ```bash
 nextflow run main.nf -profile standard \
