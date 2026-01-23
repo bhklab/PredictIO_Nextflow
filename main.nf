@@ -19,7 +19,7 @@ The pipeline performs:
 INPUT MODES
 --------------------------------------------------------
 
-PredictioR-NF supports TWO input modes:
+PredictioR-NF supports TWO main input modes:
 
 1) SummarizedExperiment mode (default; recommended)
    - Input: Bioconductor SummarizedExperiment objects stored as .rda files
@@ -50,47 +50,53 @@ GENERAL USAGE
 --------------------------------------------------------
 
 nextflow run main.nf -profile standard \
-  --input_mode <se|csv> \
-  --gene  <R_gene_vector> \
-  [--study <study_id(s)|ALL>] \
-  [--sigs  <comma-separated signature names>] \
-  [--expr_csv <expression_basename>] \
-  [--clin_csv <clinical_basename>] \
-  [--study_id <custom_study_name>] \
-  [--icb_data_dir ./ICB_data] \
-  [--sig_data_dir ./SIG_data] \
-  [--sig_summary_dir ./sig_summery_info] \
-  [--out_dir ./output] \
-  [--run_meta true|false]
+  --input_mode se|se_all|csv|csv_all \
+  --study <study_id(s)|ALL> \              # SE / SE_ALL / CSV_ALL
+  --study_id <custom_study_name> \         # CSV only
+  --expr_csv <expression_basename> \       # CSV only
+  --clin_csv <clinical_basename> \         # CSV only
+  --gene <R_gene_vector> \
+  --sigs <comma-separated signatures|ALL> \
+  --icb_data_dir ./ICB_data \
+  --sig_data_dir ./SIG_data \
+  --sig_summary_dir ./sig_summery_info \
+  --out_dir ./output \
+  --run_meta true|false
 
 --------------------------------------------------------
 EXAMPLES
 --------------------------------------------------------
 
-Example 1. SE mode: single cohort + subset of signatures
+Example 1. SE mode: single cohort, gene-only
   nextflow run main.nf -profile standard \
     --study ICB_small_Liu \
-    --gene 'c("CXCL9")' \
-    --sigs CYT_RooneyTeff_McDermott \
-    --run_meta false
+    --gene 'c("CXCL9")'
 
-Example 2. SE mode: SE mode: run ALL studies + meta-analysis
+Example 2. SE mode: multiple cohorts, signatures-only
   nextflow run main.nf -profile standard \
-  --study ALL \
-  --gene 'c("CXCL9","CXCL10","STAT1","CD8A")' \
-  --run_meta true
+    --study ICB_small_Liu,ICB_small_Hugo,ICB_small_Liu_clin \
+    --sigs CYT_Rooney,Teff_McDermott
 
-Example 3. CSV mode: single study + one gene
-nextflow run main.nf -profile standard \
-  --input_mode csv \
-  --study_id ICB_small_Liu \
-  --expr_csv ICB_small_Liu_expr \
-  --clin_csv ICB_small_Liu_clin \
-  --gene 'c("CXCL9")' 
+Example 3. SE mode (default): ALL cohorts, gene + ALL signatures, meta-analysis
+  nextflow run main.nf -profile standard \
+    --study ALL \
+    --gene 'c("CXCL9","CXCL10","STAT1","CD8A")' \
+    --sigs ALL \
+    --run_meta true
+
+Example 4. CSV mode: single cohort, gene-only
+  nextflow run main.nf -profile standard \
+    --input_mode csv \
+    --study_id ICB_small_Liu \
+    --expr_csv ICB_small_Liu_expr \
+    --clin_csv ICB_small_Liu_clin \
+    --gene 'c("CXCL9")'
 
 --------------------------------------------------------
 PARAMETER DESCRIPTIONS
 --------------------------------------------------------
+Note: Provide --gene and/or --sigs (at least one required). 
+Meta-analysis runs only when ≥2 cohorts are selected.
 
 --input_mode
   Input format for the analysis.
@@ -98,7 +104,7 @@ PARAMETER DESCRIPTIONS
     • se   (default): SummarizedExperiment (.rda) input
     • csv            Expression + clinical CSV input
 
---gene  (REQUIRED)
+--gene  
   Gene(s) of interest provided as an R vector string.
   Examples:
     'c("CXCL9")'
@@ -131,7 +137,7 @@ PARAMETER DESCRIPTIONS
     <icb_data_dir>/<clin_csv>.csv
 
 --study_id  (CSV mode only; REQUIRED)
-  User-defined label for the cohort (used for output naming). but if you use mode csva_all dont need to speceify this.
+  Required only for csv mode. Not needed for csv_all (study_id is inferred from the filename prefix).
 
 --sigs
   OPTIONAL. Subset of gene signatures to score, provided as an R vector string.
@@ -140,7 +146,7 @@ PARAMETER DESCRIPTIONS
   Example:
     CYT_Rooney,Teff_McDermott
   Default:
-    • If omitted → ALL available signatures are scored
+    • If ALL → ALL available signatures are scored
 
 --run_meta
   Whether to run meta-analysis across studies.
@@ -157,7 +163,7 @@ PARAMETER DESCRIPTIONS
 // core paths
 params.icb_data_dir       = './ICB_data'
 params.sig_data_dir       = './SIG_data'
-params.sig_summary_dir    = './sig_summery_info'
+params.sig_summary_dir    = './sig_summary_info'
 params.out_dir            = './output'
 
 // Input mode: "se" (default) 
@@ -176,7 +182,7 @@ params.study_id  = null   // required in csv mode (a label like "MyCohort")
 params.study = null      // e.g. ICB_small_Liu or ICB_small_Liu,ICB_small_Hugo
 params.gene = null       // e.g. 'c("CXCL9")' or 'c("CXCL9","CXCL10")'
 params.sigs  = null      // e.g. 'c("CYT_Rooney","Teff_McDermott")'  (NULL = all)
-params.run_meta = true
+params.run_meta = false
 
 
 log.info """
@@ -238,12 +244,11 @@ process LoadAndExtractData {
   # Extract expression data
   expr  <- assay(obj)
   clin  <- as.data.frame(colData(obj))
-  annot <- as.data.frame(rowData(obj))
+  clin\$sample_id <- rownames(clin)
 
   # Write data to CSV files
   write.csv(expr,  "${study_id}_expr.csv",  row.names = TRUE)
   write.csv(clin,  "${study_id}_clin.csv",  row.names = FALSE)
-
   """
 }
 
@@ -293,11 +298,14 @@ process GeneAssociationOS {
 
   # Parse genes safely
   genes_vec <- eval(parse(text = '${genes}'))
+  genes_present <- intersect(genes_vec, rownames(expr))
 
-  # Optional: skip cohort if none of the genes exist
+  
+  # Handle missing genes: write empty output so Nextflow does not fail
   genes_present <- intersect(genes_vec, rownames(expr))
   if (length(genes_present) == 0) {
-    message("No requested genes found in expression matrix — skipping cohort.")
+    out <- data.frame(Gene   = genes_vec,Reason = "Gene not found in expression matrix")
+    write.csv(out, file = "${study_id}_cox_os.csv", row.names = FALSE)
     quit(save = "no", status = 0)
   }
 
@@ -357,13 +365,16 @@ process GeneAssociationPFS {
 
   # Parse genes safely
   genes_vec <- eval(parse(text = '${genes}'))
+  genes_present <- intersect(genes_vec, rownames(expr))
 
   # Optional: skip cohort if none of the genes exist
-  genes_present <- intersect(genes_vec, rownames(expr))
   if (length(genes_present) == 0) {
-    message("No requested genes found in expression matrix — skipping cohort.")
-    quit(save = "no", status = 0)
-  }
+    out <- data.frame(
+      Gene   = genes_vec,
+      Reason = "Gene not found in expression matrix")
+  write.csv(out, file = "${study_id}_cox_pfs.csv", row.names = FALSE)
+  quit(save = "no", status = 0)
+}
 
   # Perform gene association analysis for PFS
   cox_result <- geneSurvCont(
@@ -423,7 +434,11 @@ process GeneAssociationResponse {
   # Optional: skip cohort if none of the genes exist
   genes_present <- intersect(genes_vec, rownames(expr))
   if (length(genes_present) == 0) {
-    message("No requested genes found in expression matrix — skipping cohort.")
+    out <- data.frame(
+      Gene   = genes_vec,
+      Reason = "Gene not found in expression matrix"
+    )
+    write.csv(out, file = "${study_id}_logregResponse.csv", row.names = FALSE)
     quit(save = "no", status = 0)
   }
 
@@ -492,7 +507,8 @@ process GeneSigScore {
 
   # subset signatures if requested
   sig_subset <- "${params.sigs}"
-  if (!is.null(sig_subset) && nzchar(sig_subset) && sig_subset != "null") {
+  if (!is.null(sig_subset) && nzchar(sig_subset) &&
+      tolower(sig_subset) != "null" && toupper(sig_subset) != "ALL") {
 
     keep <- trimws(unlist(strsplit(sig_subset, ",")))
     keep <- keep[nzchar(keep)]
@@ -511,7 +527,8 @@ process GeneSigScore {
     load(f)  # loads object 'sig'
     sig_name <- sub("\\\\.[Rr][Dd][Aa]\$", "", basename(f))
 
-    method <- signature[signature\$Signature == sig_name, "method"][1]
+    rows <- which(trimws(signature\$Signature) == trimws(sig_name))
+    method <- if (length(rows) > 0) signature\$method[rows[1]] else NA_character_
 
     geneSig <- NULL
     if (method == "GSVA") {
@@ -1257,13 +1274,22 @@ workflow {
    // create output directory once
   new File(params.out_dir).mkdirs()
   new File(STUDIES_DIR).mkdirs()
-  new File(META_DIR).mkdirs()
 
   def input_mode = params.input_mode?.toString()?.toLowerCase() ?: 'se'
+  def geneArg = params.gene?.toString()?.trim()
+  def sigsArg = params.sigs?.toString()?.trim()
 
-  // gene is always required in both modes
-  if (params.gene == null)
-    error "Please provide --gene (e.g., --gene 'c(\"CXCL9\")')"
+  def runGene = (geneArg != null && geneArg)
+  def runSig  = (sigsArg != null && sigsArg && sigsArg.toLowerCase() != 'null')
+
+  // If user provided neither, fail fast (or you can just log + exit)
+  if (!runGene && !runSig) {
+    error "Nothing to run. Provide --gene and/or --sigs (use --sigs ALL to score all signatures)."
+  }
+
+  // // gene is always required in both modes
+  // if (params.gene == null or params.sig ==null)
+  //   error "Please provide --gene (e.g., --gene 'c(\"CXCL9\")') or sig "
 
   def extracted
 
@@ -1375,61 +1401,97 @@ workflow {
   1) Gene-level association (OS/PFS/Response)
   ========================================================
   */
+  if (runGene) {
+    extracted_with_genes = extracted.map { study_id, expr_file, clin_file ->
+      tuple(study_id, expr_file, clin_file, params.gene)
+    }
 
-  extracted_with_genes = extracted.map { study_id, expr_file, clin_file ->
-    tuple(study_id, expr_file, clin_file, params.gene)
+    gene_os  = extracted_with_genes | GeneAssociationOS
+    gene_pfs = extracted_with_genes | GeneAssociationPFS
+    gene_rsp = extracted_with_genes | GeneAssociationResponse
   }
-
-  gene_os  = extracted_with_genes | GeneAssociationOS
-  gene_pfs = extracted_with_genes | GeneAssociationPFS
-  gene_rsp = extracted_with_genes | GeneAssociationResponse
-
   /*
   ========================================================
   2) Signature scoring + association
   ========================================================
   */
 
-  def sig_info_file = file("${params.sig_summary_dir}/signature_information.csv")
-  def sig_dir_path  = file(params.sig_data_dir)
+  if (runSig) {
+    def sig_info_file = file("${params.sig_summary_dir}/signature_information.csv")
+    def sig_dir_path  = file(params.sig_data_dir)
 
-  // GeneSigScore expects 4-tuple (study_id, sig_info, sig_dir, expr_file)
-  sig_inputs = extracted.map { study_id, expr_file, clin_file ->
-    tuple(study_id, sig_info_file, sig_dir_path, expr_file)
+    // GeneSigScore expects 4-tuple (study_id, sig_info, sig_dir, expr_file)
+    sig_inputs = extracted.map { study_id, expr_file, clin_file ->
+      tuple(study_id, sig_info_file, sig_dir_path, expr_file)
+    }
+
+    sig_scored = sig_inputs | GeneSigScore   // (study_id, study_GeneSigScore.csv)
+
+    // Join scored signatures back to (expr, clin)
+    sig_assoc_inputs =
+      sig_scored
+        .join(extracted)
+        .map { study_id, genescore_csv, expr_file, clin_file ->
+          tuple(study_id, expr_file, clin_file, genescore_csv)
+        }
+
+    sig_os  = sig_assoc_inputs | GeneSig_AssociationOS
+    sig_pfs = sig_assoc_inputs | GeneSig_AssociationPFS
+    sig_rsp = sig_assoc_inputs | GeneSig_AssociationResponse
   }
-
-  sig_scored = sig_inputs | GeneSigScore   // (study_id, study_GeneSigScore.csv)
-
-  // Join scored signatures back to (expr, clin)
-  sig_assoc_inputs =
-    sig_scored
-      .join(extracted)
-      .map { study_id, genescore_csv, expr_file, clin_file ->
-        tuple(study_id, expr_file, clin_file, genescore_csv)
-      }
-
-  sig_os  = sig_assoc_inputs | GeneSig_AssociationOS
-  sig_pfs = sig_assoc_inputs | GeneSig_AssociationPFS
-  sig_rsp = sig_assoc_inputs | GeneSig_AssociationResponse
-
   /*
   ========================================================
-  3) Meta-analysis (optional)
+  3) Meta-analysis (optional): require >= 2 studies for meta
   ========================================================
   */
+  
+  def studyStr   = params.study?.toString()?.trim()
 
-  if (params.run_meta) {
+  def metaSupportedMode = (input_mode in ['se', 'se_all', 'csv_all'])
+  if (input_mode == 'csv') metaSupportedMode = false   // single cohort
 
-    meta_in_ch =
+  int nSelected = 0
+
+  if (!metaSupportedMode) {
+    nSelected = 1
+  } else if (!studyStr || studyStr.toUpperCase() == 'ALL') {
+    if (input_mode in ['se', 'se_all']) {
+      nSelected = new File(params.icb_data_dir.toString())
+        .listFiles()
+        ?.count { it.name.toLowerCase().endsWith('.rda') } ?: 0
+    } else if (input_mode == 'csv_all') {
+      nSelected = new File(params.icb_data_dir.toString())
+        .listFiles()
+        ?.count { it.name.toLowerCase().endsWith('_expr.csv') } ?: 0
+    }
+  } else {
+    nSelected = studyStr.split(',').collect{ it.trim() }.findAll{ it }.size()
+  }
+
+  def canMeta = (params.run_meta as boolean) && metaSupportedMode && (nSelected >= 2)
+
+  if ((params.run_meta as boolean) && !canMeta) {
+    log.warn "run_meta=true but fewer than 2 cohorts selected (n=${nSelected}) or mode doesn't support meta. Skipping meta-analysis."
+  }
+
+  // Run meta-analysis if applicable
+  if (canMeta) {
+
+  new File(META_DIR).mkdirs()
+
+  if (runGene) {
+    def gene_meta_in_ch =
       gene_os.map  { f -> tuple('OS', f) }
         .mix( gene_pfs.map { f -> tuple('PFS', f) } )
         .mix( gene_rsp.map { f -> tuple('Response', f) } )
         .groupTuple()
 
-    MetaAnalysis_Gene_PanCancer(meta_in_ch)
-    MetaAnalysis_Gene_PerCancer(meta_in_ch)
+    MetaAnalysis_Gene_PanCancer(gene_meta_in_ch)
+    MetaAnalysis_Gene_PerCancer(gene_meta_in_ch)
+  }
 
-    sig_meta_in_ch =
+  if (runSig) {
+    def sig_meta_in_ch =
       sig_os.map  { f -> tuple('OS', f) }
         .mix( sig_pfs.map { f -> tuple('PFS', f) } )
         .mix( sig_rsp.map { f -> tuple('Response', f) } )
@@ -1438,4 +1500,4 @@ workflow {
     MetaAnalysis_Sig_PanCancer(sig_meta_in_ch)
     MetaAnalysis_Sig_PerCancer(sig_meta_in_ch)
   }
-}
+}}
