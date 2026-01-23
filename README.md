@@ -123,8 +123,8 @@ Expression column names **must exactly match** clinical sample identifiers (orde
 
 | Column               | Description                                    |
 | -------------------- | ---------------------------------------------- |
-| `cancer_type`        | Cancer type (single unique value per study)    |
-| `treatment`          | Treatment type (single unique value per study) |
+| `cancer_type`        | Cancer type (single unique value per cohort)    |
+| `treatment`          | Treatment type (single unique value per cohort) |
 | `response`           | Response (`R` / `NR`)                          |
 | `survival_time_os`   | Overall survival time                          |
 | `survival_time_pfs`  | Progression-free survival time                 |
@@ -160,7 +160,7 @@ Signature definitions are sourced from: [bhklab/SignatureSets](https://github.co
 Full signature metadata (50+ signatures) is available at:
 [bhklab/SignatureSets/tree/main/data-raw](https://github.com/bhklab/SignatureSets/tree/main/data-raw)
 
-**Curation note:** All signatures are **fully curated and standardized**, with gene identifiers, weights, and scoring methods harmonized across studies to enable reproducible and comparable signature scoring.
+**Curation note:** All signatures are **fully curated and standardized**, with gene identifiers, weights, and scoring methods harmonized across cohorts to enable reproducible and comparable signature scoring.
 
 Please follow the same format for consistency.
 
@@ -242,30 +242,35 @@ output/
 └── meta/
 ```
 
-* **Per-study outputs:** organized by study ID include extracted inputs, gene-level association results, signature scores, and signature-level association results.
+* **Per-cohort outputs:** organized by cohort ID include extracted inputs, gene-level association results, signature scores, and signature-level association results.
 * **Meta-analysis outputs:** include pan-cancer and per-cancer summary tables.
 
 ## Step 6: Analyses performed
 
+### Gene identifier harmonization
+
+* Acceptable gene identifiers: Ensembl Gene ID, Entrez Gene ID, or HGNC/HUGO gene symbol
+* All expression matrices and signature gene lists will be mapped to a common identifier (one chosen per analysis run)
+* Expression and signatures must be aligned after mapping (consistent gene universe, duplicates handled, unmapped genes flagged/removed)
+
 ### Gene-level analysis
 
-* Overall survival (OS): Cox proportional hazards regression
-* Progression-free survival (PFS): Cox proportional hazards regression
-* Response (R vs NR): Logistic regression
-* Multiple-testing correction using Benjamini–Hochberg FDR
+* Endpoints: overall survival (OS), progression-free survival (PFS), response (R vs NR)
+* OS/PFS: Cox proportional hazards models
+* Response: logistic regression
+* Multiple-testing control: Benjamini–Hochberg FDR
 
 ### Signature-level analysis
 
-* Signature scoring via GSVA, ssGSEA, weighted mean, or signature-specific algorithms
-* Association testing for OS, PFS, and response
-* Benjamini–Hochberg FDR correction
+* Signature scoring: GSVA, ssGSEA, weighted mean, or signature-specific methods
+* Association testing with OS, PFS, and response
+* Multiple-testing control: Benjamini–Hochberg FDR
 
 ### Meta-analysis (optional)
 
-* Pan-cancer meta-analysis
-* Per-cancer meta-analysis (performed only when sufficient supporting studies exist)
-* Conducted separately for gene-level and signature-level results
-
+* Random-effects meta-analysis across cohorts 
+* Per-cancer meta-analysis when sufficient cohorts/samples are available
+* Performed separately for gene-level and signature-level results
 
 ## Step 7: Reference Resources
 
@@ -277,7 +282,7 @@ output/
 
 ### ICB Data Information
 
-This table summarizes each dataset by study and treatment type, along with cancer types, clinical and molecular data availability, and relevant PMID references. Required columns include `treatment` and `cancer type`.
+This table summarizes each dataset by treatment type, cancer type(s), available clinical and molecular data, and the relevant PMID references. The required columns are `treatment` and `cancer type`.
 
 | Dataset               | Patients [#] | Cancer type | Treatment  | Clinical endpoints | Molecular data | PMID     |
 | --------------------- | -----------: | ----------- | ---------- | ------------------ | -------------- | -------- |
