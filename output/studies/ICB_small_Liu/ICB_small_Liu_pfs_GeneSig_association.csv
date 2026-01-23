@@ -1,3 +1,0 @@
-"Outcome","Gene","Study","Coef","SE","N","Pval","Cancer_type","Treatment","FDR"
-"PFS","CYT_Rooney","ICB_small_Liu",-0.085,0.274,74,0.756301099382944,"Melanoma","PD-1/PD-L1",0.798311052661486
-"PFS","Teff_McDermott","ICB_small_Liu",-0.078,0.305,74,0.798311052661486,"Melanoma","PD-1/PD-L1",0.798311052661486
