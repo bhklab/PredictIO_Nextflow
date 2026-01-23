@@ -187,7 +187,7 @@ nextflow run main.nf -profile standard \
 ```
 
 > **Note:** PredictioR-NF can run gene-level analysis (`--gene`), signature-level analysis (`--sigs`), or both.  
-> You must provide at least one of `--gene` or `--sigs`. Meta-analysis runs only with `--run_meta true` and ≥ 2 cohorts (multi-cohort input modes only).
+> You must provide at least one of `--gene` or `--sigs`. Meta-analysis runs only with `--run_meta true` and ≥ 3 cohorts (multi-cohort input modes only).
 
 ### Examples
 
@@ -205,9 +205,8 @@ nextflow run main.nf -profile standard \
 ```
 nextflow run main.nf -profile standard \
   --input_mode se \
-  --study ICB_small_Liu,ICB_small_Hugo,ICB_small_Nathanson,ICB_small_Riaz \
+  --study ICB_small_Liu,ICB_small_Hugo \
   --sigs CYT_Rooney,Teff_McDermott
-  --run_meta true
 ```
 
 **Example 3: SE mode (default), ALL cohorts, gene + ALL signatures, meta-analysis**
