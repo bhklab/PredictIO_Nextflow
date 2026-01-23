@@ -1,0 +1,3 @@
+"Outcome","Gene","Study","Coef","SE","N","Pval","Cancer_type","Treatment","FDR"
+"R vs NR","Teff_McDermott","ICB_small_Riaz",-3.762,2.06,14,0.0677859484333574,"Melanoma","IO+combo",0.135571896866715
+"R vs NR","CYT_Rooney","ICB_small_Riaz",-2.649,1.956,14,0.175616426450928,"Melanoma","IO+combo",0.175616426450928
