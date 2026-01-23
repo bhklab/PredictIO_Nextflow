@@ -1,5 +1,0 @@
-"Outcome","Gene","Study","Coef","SE","N","Pval","Cancer_type","Treatment","FDR"
-"R vs NR","STAT1","ICB_small_Liu",0.095,0.239,69,0.691300900823713,"Melanoma","PD-1/PD-L1",0.82718625837546
-"R vs NR","CXCL9","ICB_small_Liu",0.147,0.243,69,0.543676587262186,"Melanoma","PD-1/PD-L1",0.82718625837546
-"R vs NR","CD8A","ICB_small_Liu",0.052,0.238,69,0.82718625837546,"Melanoma","PD-1/PD-L1",0.82718625837546
-"R vs NR","CXCL10","ICB_small_Liu",0.106,0.242,69,0.661146202411252,"Melanoma","PD-1/PD-L1",0.82718625837546
