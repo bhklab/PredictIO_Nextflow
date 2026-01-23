@@ -197,7 +197,7 @@ nextflow run main.nf -profile standard \
 nextflow run main.nf -profile standard \
   --input_mode se \
   --study ICB_small_Liu \
-  --gene 'c("CXCL9","CXCL10","STAT1","CD8A")'
+  --gene 'c("CXCL9","CXCL10","STAT1","CD8A")' \
 ```
 
 **Example 2:  SE mode (default), multi-cohort, signatures-only analysis**
@@ -205,8 +205,9 @@ nextflow run main.nf -profile standard \
 ```
 nextflow run main.nf -profile standard \
   --input_mode se \
-  --study ICB_small_Liu,ICB_small_Hugo,ICB_small_Liu_clin \
+  --study ICB_small_Liu,ICB_small_Hugo,ICB_small_Nathanson,ICB_small_Riaz \
   --sigs CYT_Rooney,Teff_McDermott
+  --run_meta true
 ```
 
 **Example 3: SE mode (default), ALL cohorts, gene + ALL signatures, meta-analysis**

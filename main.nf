@@ -96,7 +96,7 @@ Example 4. CSV mode: single cohort, gene-only
 PARAMETER DESCRIPTIONS
 --------------------------------------------------------
 Note: Provide --gene and/or --sigs (at least one required). 
-Meta-analysis runs only when ≥2 cohorts are selected.
+Meta-analysis runs only when ≥3 cohorts are selected.
 
 --input_mode
   Input format for the analysis.
@@ -155,7 +155,7 @@ Meta-analysis runs only when ≥2 cohorts are selected.
     • true           : run pan-cancer and per-cancer meta-analysis
     
   Recommendation:
-    • Use true  when analyzing ≥ 2 cohorts
+    • Use true  when analyzing ≥ 3 cohorts
     • Use false for single-cohort exploratory runs
 ========================================================
 */
@@ -1122,8 +1122,8 @@ process MetaAnalysis_Sig_PanCancer {
   meta_list <- lapply(signatures, function(sig) {
     sub_df <- df[df\$Gene == sig, , drop=FALSE]
 
-    # REQUIRE ≥2 studies for real meta (change to 3 if you want stricter)
-    if (length(unique(sub_df\$Study)) < 2) return(NULL)
+    # REQUIRE ≥3 studies for real meta (change to 3 if you want stricter)
+    if (length(unique(sub_df\$Study)) < 3) return(NULL)
 
     m <- metafun(
       coef           = sub_df\$Coef,
@@ -1372,9 +1372,9 @@ workflow {
       }
     }
 
-    // Guard: meta-analysis requires >= 2 studies
-    if (params.run_meta && study_list && study_list.size() < 2) {
-      log.warn "Meta-analysis requested but fewer than 2 studies provided — skipping meta-analysis."
+    // Guard: meta-analysis requires >= 3 studies
+    if (params.run_meta && study_list && study_list.size() < 3) {
+      log.warn "Meta-analysis requested but fewer than 3 studies provided — skipping meta-analysis."
       params.run_meta = false
     }
 
@@ -1441,7 +1441,7 @@ workflow {
   }
   /*
   ========================================================
-  3) Meta-analysis (optional): require >= 2 studies for meta
+  3) Meta-analysis (optional): require >= 3 studies for meta
   ========================================================
   */
   
@@ -1468,10 +1468,10 @@ workflow {
     nSelected = studyStr.split(',').collect{ it.trim() }.findAll{ it }.size()
   }
 
-  def canMeta = (params.run_meta as boolean) && metaSupportedMode && (nSelected >= 2)
+  def canMeta = (params.run_meta as boolean) && metaSupportedMode && (nSelected >= 3)
 
   if ((params.run_meta as boolean) && !canMeta) {
-    log.warn "run_meta=true but fewer than 2 cohorts selected (n=${nSelected}) or mode doesn't support meta. Skipping meta-analysis."
+    log.warn "run_meta=true but fewer than 3 cohorts selected (n=${nSelected}) or mode doesn't support meta. Skipping meta-analysis."
   }
 
   // Run meta-analysis if applicable
