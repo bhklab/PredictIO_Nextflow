@@ -1,0 +1,3 @@
+"Outcome","Gene","Study","Coef","SE","N","Pval","Cancer_type","Treatment","FDR"
+"PFS","CYT_Rooney","ICB_small_Van_Allen",-0.541,0.334,42,0.105630763072709,"Melanoma","CTLA4",0.211261526145418
+"PFS","Teff_McDermott","ICB_small_Van_Allen",-0.315,0.322,42,0.327293672479639,"Melanoma","CTLA4",0.327293672479639

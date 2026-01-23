@@ -1,0 +1,3 @@
+"Outcome","Gene","Study","Coef","SE","N","Pval","Cancer_type","Treatment","FDR"
+"OS","CYT_Rooney","ICB_small_Miao",0.065,0.351,33,0.853265800007014,"Kidney","PD-1/PD-L1",0.937485036933265
+"OS","Teff_McDermott","ICB_small_Miao",-0.033,0.427,33,0.937485036933265,"Kidney","PD-1/PD-L1",0.937485036933265

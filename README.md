@@ -205,7 +205,7 @@ nextflow run main.nf -profile standard \
 ```
 nextflow run main.nf -profile standard \
   --input_mode se \
-  --study ICB_small_Liu,ICB_small_Hugo,ICB_small_Nathanson,ICB_small_Riaz \
+  --study ICB_small_Liu,ICB_small_Miao,ICB_small_Van_Allen,ICB_small_Padron \
   --sigs CYT_Rooney,Teff_McDermott \
   --run_meta true
 ```

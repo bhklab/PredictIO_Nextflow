@@ -1,0 +1,3 @@
+"Outcome","Gene","Study","Coef","SE","N","Pval","Cancer_type","Treatment","FDR"
+"R vs NR","CYT_Rooney","ICB_small_Padron",-5.865,3.999,23,0.142492621153809,"Pancreas","PD-1/PD-L1",0.142492621153809
+"R vs NR","Teff_McDermott","ICB_small_Padron",-8.041,5.418,23,0.137744612454651,"Pancreas","PD-1/PD-L1",0.142492621153809

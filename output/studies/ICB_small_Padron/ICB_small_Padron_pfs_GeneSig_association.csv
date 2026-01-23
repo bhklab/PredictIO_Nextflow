@@ -1,0 +1,3 @@
+"Outcome","Gene","Study","Coef","SE","N","Pval","Cancer_type","Treatment","FDR"
+"PFS","CYT_Rooney","ICB_small_Padron",-1.128,0.316,45,0.000356701949838807,"Pancreas","PD-1/PD-L1",0.000713403899677614
+"PFS","Teff_McDermott","ICB_small_Padron",-0.942,0.338,45,0.00527021645626928,"Pancreas","PD-1/PD-L1",0.00527021645626928
