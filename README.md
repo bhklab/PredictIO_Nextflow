@@ -16,16 +16,30 @@ The main workflow (`main.nf`) consists of three sequential analysis stages:
 * **Step 1:** [Install Nextflow and Docker](#step-1-install-nextflow-and-docker)
 * **Step 2:** [Project structure](#step-2-project-structure)
 * **Step 3:** [Prepare input data](#step-3-prepare-input-data)
-* **Step 4:** [Run the PredictioR pipeline](#step-4-run-the-predictior-pipeline)
+* **Step 4:** [Run the PredictioR Nextflow pipeline](#step-4-run-the-predictior-nextflow-pipeline)
 * **Step 5:** [Review and interpret outputs](#step-5-review-and-interpret-outputs)
 * **Step 6:** [Analyses performed](#step-6-analyses-performed)
 * **Step 7:** [Reference resources](#step-7-reference-resources)
 
 ## Step 1: Install Nextflow and Docker
 
+**Before you start (recommended environment)**
+
+- **Linux/macOS:** supported.
+- **Windows:** use **WSL2 (Ubuntu) + Docker Desktop** (recommended).
+- **Avoid on Windows:** **Git Bash / MINGW64** (can cause Nextflow terminal/signal issues).
+
+**Requirements:** Java **≥ 11** (Java **17** recommended; tested with **17.0.x**), Nextflow **≥ 24** (tested with **25.10.2**), Docker Engine/Docker Desktop **≥ 20.10** (tested with **27.5.1**).
+
+Sanity checks:
+```bash
+java -version
+nextflow -version
+docker version
+```
+
 ### Nextflow
 
-* **Version:** 24.04.2
 * **Setup:** [https://www.nextflow.io/docs/latest/install.html](https://www.nextflow.io/docs/latest/install.html)
 * **Documentation:** [https://www.nextflow.io/docs/latest/index.html](https://www.nextflow.io/docs/latest/index.html)
 * **Training:** [https://training.nextflow.io](https://training.nextflow.io)
@@ -36,13 +50,6 @@ The main workflow (`main.nf`) consists of three sequential analysis stages:
 * **Install:** [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 * **PredictioR Docker image:** `bhklab/nextflow-env`
 * **Docker Hub:** [https://hub.docker.com/r/bhklab/nextflow-env](https://hub.docker.com/r/bhklab/nextflow-env)
-
-Sanity checks:
-```bash
-java -version
-nextflow -version
-docker version
-```
 
 Pull the image:
 
@@ -60,13 +67,13 @@ Before running the pipeline, the project directory should contain:
 ├── nextflow.config         # Profiles/resources + Docker settings
 ├── ICB_data/               # Cohort inputs: *.rda (SE mode) or *_expr.csv + *_clin.csv (CSV mode)
 ├── SIG_data/               # Signature .rda files (each loads a `sig` data frame)
-├── sig_summery_info/       # Signature metadata (signature_information.csv)
+├── sig_summary_info/       # Signature metadata (signature_information.csv)
 └── output/                 # Results (auto-created): studies/<study_id>/ and meta/
 ```
 
 ## Step 3: Prepare input data
 
-Each cohort is expected to represent a single cancer type and a single treatment category.
+Each cohort (in either SummarizedExperiment or CSV mode) is expected to represent a single cancer type and a single treatment category.
 
 **FAIR data note:** PredictioR-NF assumes standardized, well-annotated inputs to enable reproducible analyses and reuse across cohorts. We recommend `SummarizedExperiment` to keep molecular assays, sample metadata, and feature annotations together, with consistent sample IDs and harmonized clinical endpoint variables.
 
@@ -146,7 +153,7 @@ Typical columns in `sig`:
 * `gene_name`: Name of the gene
 * `weight`: Weight assigned to each gene
 
-Signature metadata (scoring method, algorithm type) is read from: [signature_information.csv](https://github.com/bhklab/PredictIO_Nextflow/blob/main/sig_summery_info/signature_information.csv).
+Signature metadata (scoring method, algorithm type) is read from: [signature_information.csv](https://github.com/bhklab/PredictIO_Nextflow/blob/main/sig_summary_info/signature_information.csv).
 
 Signature definitions are sourced from: [bhklab/SignatureSets](https://github.com/bhklab/SignatureSets)
 
@@ -157,7 +164,7 @@ Full signature metadata (50+ signatures) is available at:
 
 Please follow the same format for consistency.
 
-## Step 4: Run the PredictioR pipeline
+## Step 4: Run the PredictioR Nextflow pipeline
 
 Run the pipeline from the project root.
 
@@ -165,44 +172,48 @@ Run the pipeline from the project root.
 
 ```bash
 nextflow run main.nf -profile standard \
-  --input_mode se|csv|se_all|csv_all \
+  --input_mode se|se_all|csv|csv_all \
+  --study <study_id(s)|ALL> \              # SE / SE_ALL / CSV_ALL
+  --study_id <custom_study_name> \         # CSV only
+  --expr_csv <expression_basename> \       # CSV only
+  --clin_csv <clinical_basename> \         # CSV only
   --gene <R_gene_vector> \
-  --study <study_id_or_ALL> \
-  --sigs <R_signature_vector> \
-  --expr_csv <expression_basename> \
-  --clin_csv <clinical_basename> \
-  --study_id <custom_study_name> \
+  --sigs <comma-separated signatures|ALL> \
   --icb_data_dir ./ICB_data \
   --sig_data_dir ./SIG_data \
-  --sig_summary_dir ./sig_summery_info \
+  --sig_summary_dir ./sig_summary_info \
   --out_dir ./output \
   --run_meta true|false
 ```
 
+> **Note:** PredictioR-NF can run gene-level analysis (`--gene`), signature-level analysis (`--sigs`), or both.  
+> You must provide at least one of `--gene` or `--sigs`. Meta-analysis runs only with `--run_meta true` and ≥ 2 cohorts (multi-cohort input modes only).
+
 ### Examples
 
-**Example 1: SE mode, single cohort, subset of signatures**  
+**Example 1:  SE mode, single cohort, gene + subset of signatures**  
 
 ```bash
 nextflow run main.nf -profile standard \
   --input_mode se \
   --study ICB_small_Liu \
   --gene 'c("CXCL9")' \
-  --sigs  CYT_Rooney,Teff_McDermott\
+  --sigs CYT_Rooney,Teff_McDermott \
   --run_meta false
 ```
 
-**Example 2: SE mode, run all cohorts, with meta-analysis**
+**Example 2: SE mode, ALL cohorts, ALL signatures, meta-analysis**
 
 ```bash
 nextflow run main.nf -profile standard \
   --input_mode se \
   --study ALL \
   --gene 'c("CXCL9","CXCL10","STAT1","CD8A")' \
+  --sigs ALL \
   --run_meta true
 ```
 
-**Example 3: CSV mode, single cohort**
+**Example 3: CSV mode, single cohort, gene-only**
 
 ```bash
 nextflow run main.nf -profile standard \
