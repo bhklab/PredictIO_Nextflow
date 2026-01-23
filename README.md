@@ -273,6 +273,8 @@ output/
 * Per-cancer meta-analysis when sufficient cohorts/samples are available
 * Performed separately for gene-level and signature-level results
 
+> **Note:** Results may be `NA` for cohorts/endpoints with missing data, insufficient samples/events, or unmapped genes/signatures (see “Missing values (NA) in outputs”).
+
 ## Step 7: Reference Resources
 
 * **GitHub repository:** [https://github.com/bhklab/PredictioR](https://github.com/bhklab/PredictioR)
